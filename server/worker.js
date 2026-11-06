@@ -3,15 +3,19 @@
 // - /api/sync        two-way sync of events, projects, items and settings (last write wins per record)
 // - /api/reminders   the app uploads its upcoming reminders; the server sends them as push notifications
 // - /api/subscribe   registers a device for push notifications
+// - /api/connector   tells the app the address of the Claude connector
 // Every /api/ request must carry the sync key: "Authorization: Bearer <SYNC_KEY>".
+// - /mcp/<token>     the Claude connector (see mcp.js). The token in the address is derived from the sync key.
 
 import { DurableObject } from 'cloudflare:workers';
 import { newVapidKeys, sendPush } from './push.js';
+import { handleMcp, connectorToken } from './mcp.js';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type, Mcp-Session-Id, Mcp-Protocol-Version',
+  'Access-Control-Expose-Headers': 'Mcp-Session-Id',
   'Access-Control-Max-Age': '86400',
 };
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json', ...CORS } });
@@ -30,8 +34,14 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const url = new URL(req.url);
     if (url.pathname === '/') return new Response('AlCal sync server is running.', { headers: CORS });
+    if (url.pathname.startsWith('/mcp/')) return connector(req, env, url);
     if (!url.pathname.startsWith('/api/')) return json({ error: 'Not found' }, 404);
     if (!env.SYNC_KEY) return json({ error: 'The server has no sync key yet (SYNC_KEY secret is missing).' }, 500);
+    if (url.pathname === '/api/connector') {
+      const given = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+      if (!sameKey(given, env.SYNC_KEY)) return json({ error: 'Wrong sync key' }, 401);
+      return json({ url: url.origin + '/mcp/' + await connectorToken(env.SYNC_KEY) });
+    }
     const given = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
     if (!sameKey(given, env.SYNC_KEY)) return json({ error: 'Wrong sync key' }, 401);
     let body = null;
@@ -44,6 +54,21 @@ export default {
   // Safety net: the Durable Object normally wakes itself with an alarm at the next reminder.
   async scheduled(event, env, ctx) { ctx.waitUntil(store(env).tick()); },
 };
+
+// Claude connector: MCP over Streamable HTTP, answered with plain JSON (no event stream needed).
+async function connector(req, env, url) {
+  if (!env.SYNC_KEY) return json({ error: 'The server has no sync key yet.' }, 500);
+  const token = url.pathname.slice(5).replace(/\/+$/, '');
+  if (!sameKey(token, await connectorToken(env.SYNC_KEY))) return json({ error: 'Not found' }, 404);
+  if (req.method !== 'POST') return new Response(null, { status: 405, headers: { Allow: 'POST', ...CORS } });
+  let body;
+  try { body = await req.json(); } catch { return json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }, 400); }
+  let out;
+  try { out = await store(env).mcp(body); }
+  catch (e) { return json({ jsonrpc: '2.0', id: (body && body.id) ?? null, error: { code: -32603, message: String((e && e.message) || e) } }, 500); }
+  if (out == null) return new Response(null, { status: 202, headers: CORS });
+  return json(out);
+}
 
 export class AlcalStore extends DurableObject {
   constructor(ctx, env) {
@@ -98,6 +123,39 @@ export class AlcalStore extends DurableObject {
       changes: rows.filter(r => !accepted.has(r.kind + '\n' + r.id))
                    .map(r => ({ kind: r.kind, id: r.id, updatedAt: r.updatedAt, data: JSON.parse(r.data) })),
     };
+  }
+
+  // Record access for the connector. Writes go through the same table as /api/sync, so devices pull them.
+  async mcp(body) {
+    const sql = this.sql, self = this;
+    let touched = false;
+    const db = {
+      all(kind) { return sql.exec('SELECT data FROM records WHERE kind = ?', kind).toArray().map(r => JSON.parse(r.data)); },
+      get(kind, id) { const r = sql.exec('SELECT data FROM records WHERE kind = ? AND id = ?', kind, String(id)).toArray(); return r.length ? JSON.parse(r[0].data) : null; },
+      put(kind, rec) {
+        const data = Object.assign({}, rec); delete data._lt;
+        const prev = sql.exec('SELECT updatedAt FROM records WHERE kind = ? AND id = ?', kind, data.id).toArray();
+        data.updatedAt = Math.max(Date.now(), prev.length ? prev[0].updatedAt + 1 : 0);
+        const seq = Number(self.meta('seq') || 0) + 1;
+        sql.exec('INSERT INTO records (kind, id, updatedAt, seq, data) VALUES (?, ?, ?, ?, ?) ' +
+          'ON CONFLICT (kind, id) DO UPDATE SET updatedAt = excluded.updatedAt, seq = excluded.seq, data = excluded.data',
+          kind, data.id, data.updatedAt, seq, JSON.stringify(data));
+        self.setMeta('seq', seq);
+        Object.assign(rec, { updatedAt: data.updatedAt });
+      },
+      reminders(prefix, items) {
+        sql.exec('DELETE FROM reminders WHERE sent = 0 AND substr(id, 1, ?) = ?', prefix.length, prefix);
+        for (const it of items) {
+          sql.exec('INSERT INTO reminders (id, fireAt, title, body, sent) VALUES (?, ?, ?, ?, 0) ' +
+            'ON CONFLICT (id) DO UPDATE SET fireAt = excluded.fireAt, title = excluded.title, body = excluded.body WHERE reminders.sent = 0',
+            String(it.id).slice(0, 200), Number(it.fireAt), String(it.title || '').slice(0, 200), String(it.body || '').slice(0, 300));
+        }
+        touched = true;
+      },
+    };
+    const out = await handleMcp(body, db);
+    if (touched) await this.arm();
+    return out;
   }
 
   async vapid() {

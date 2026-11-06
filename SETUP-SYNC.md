@@ -70,3 +70,27 @@ default in the panel). Planner items can remind you on, or a day or a week befor
 - The server stores your data and the titles of upcoming reminders (they are the notification text).
   It is reachable only with your sync key. To change the key: update the `ALCAL_SYNC_KEY` secret,
   run the workflow again, and reconnect each device with the new key.
+
+## Claude as your secretary (optional)
+
+The sync server also works as a connector for Claude. With it, Claude can add, move and delete events,
+find free time, manage planner projects and items, and add to the Purchase, Reading and Ideas lists,
+from any Claude chat on the web or on your iPhone.
+
+1. In AlCal, open **Sync & reminders**. Once a device is connected, a **Claude connector** section shows
+   the connector address. Tap **Copy address**.
+2. In Claude on the web: **Settings** > **Connectors** > **Add custom connector**. Give it a name
+   (for example "AlCal"), paste the address, and add it. It is then available on your iPhone as well.
+3. In a chat, make sure the AlCal connector is switched on, then just ask: "Add dinner with Dad on Saturday
+   at 7 at Kao Chi, remind me an hour before", "What does next week look like?", "Put 'draft section 3'
+   in the GEMA project, due Friday", "Add Law's Empire to my academic books".
+
+Notes:
+
+- Changes appear on your devices within about a minute while AlCal is open, and reminders for new events
+  are scheduled right away.
+- Claude reads and writes times in the time zone of the device that synced last. You can name another
+  zone in your request ("4 pm London time").
+- Deletions work like in the app: the record is marked deleted, not erased.
+- The address contains a secret derived from your sync key. Keep it private. Changing the sync key
+  also changes the address, so you would then add the connector again.

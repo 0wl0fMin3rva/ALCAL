@@ -498,6 +498,12 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
         <div class="status" id="pushStatus"></div>
         <label class="fl" style="margin-top:14px">Default reminder for new events<select id="defRem"></select></label>
       </section>
+      <section id="mcpSec" class="hidden">
+        <h3 class="sh">Claude connector</h3>
+        <p class="hint">Lets Claude add and change events, planner items and list entries for you. In Claude: Settings &gt; Connectors &gt; Add custom connector, then paste this address. Keep it private: anyone with it can edit your calendar.</p>
+        <label class="fl">Connector address<input id="mcpUrl" readonly autocomplete="off" spellcheck="false"></label>
+        <div class="frow"><button class="btn" id="mcpCopy">Copy address</button></div>
+      </section>
     </div>
   </div>
 </div>
@@ -1921,6 +1927,7 @@ const Sync = {
     if(this.busy){ this.again = true; return; }
     this.busy = true; this.setState('busy');
     try{
+      try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone; const r = ST.mem.get('tz'); if(tz && (!r || r.value !== tz)) ST.write(Object.assign({id:'tz', value:tz}, {updatedAt: Date.now(), _lt: Date.now()})); }catch(e){}   // lets the Claude connector read times in your zone
       const started = Date.now(), lastPush = LS.get('sync.lastPush', -1), since = LS.get('sync.seq', 0);
       const changes = [];
       for(const [kind, st] of Object.entries(STORES)){
@@ -2047,7 +2054,19 @@ function openSync(){
   $('#pushStatus').textContent = '';
   renderSyncStatus();
   $('#syncDlg').classList.add('open');
+  loadConnector();
 }
+async function loadConnector(){
+  const sec = $('#mcpSec');
+  if(!Sync.cfg){ sec.classList.add('hidden'); return; }
+  try{ const r = await api('/api/connector'); if(!r.url) throw 0; $('#mcpUrl').value = r.url; sec.classList.remove('hidden'); }
+  catch(e){ sec.classList.add('hidden'); }
+}
+$('#mcpCopy').onclick = async () => {
+  const v = $('#mcpUrl').value; if(!v) return;
+  try{ await navigator.clipboard.writeText(v); toast('Connector address copied'); }
+  catch(e){ const i = $('#mcpUrl'); i.focus(); i.select(); toast('Select the address and copy it'); }
+};
 function closeSync(){ $('#syncDlg').classList.remove('open'); }
 $('#btnSync').onclick = openSync;
 $('#syClose').onclick = closeSync;
@@ -2060,7 +2079,7 @@ $('#syConnect').onclick = async () => {
   try{
     const r = await api('/api/ping', null, {url, key});
     LS.set('sync', {url, key}); LS.set('sync.seq', 0); LS.set('sync.lastPush', -1); LS.set('sync.remHash', '');
-    await Sync.run();
+    await Sync.run(); loadConnector();
     toast(r.records ? 'Connected. Merged with ' + r.records + ' records from the server.' : 'Connected. Your data is now on the server.');
   }catch(e){ st.textContent = 'Could not connect: ' + e.message; st.classList.add('bad'); }
 };
@@ -2069,7 +2088,7 @@ $('#syOff').onclick = async () => {
   const ok = await choose('Disconnect this device?', 'Your events stay on this device but no longer sync. Notifications on this device stop.', [['yes', 'Disconnect']]);
   if(!ok) return;
   await Push.disable();
-  LS.set('sync', null); Sync.setState('off');
+  LS.set('sync', null); Sync.setState('off'); $('#mcpSec').classList.add('hidden');
 };
 $('#pushOn').onclick = async () => {
   const ps = $('#pushStatus'); ps.classList.remove('bad');
