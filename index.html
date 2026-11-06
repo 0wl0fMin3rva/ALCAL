@@ -2752,7 +2752,14 @@ $('#pushTest').onclick = async () => {
   try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
   render();
   if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
-    try{ navigator.serviceWorker.register('sw.js').catch(() => {}); }catch(e){}
+    try{
+      const had = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'}).then(r => r.update()).catch(() => {});
+      let reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {   // a new version took over: show it
+        if(!had || reloaded || ED || CE || LE) return; reloaded = true; location.reload();
+      });
+    }catch(e){}
   }
   Sync.start();
   Remote.refreshAll();
