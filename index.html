@@ -35,7 +35,7 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke
 .spacer{flex:1}
 
 /* Top bar */
-.topbar{background:var(--bar);color:#fff;display:flex;align-items:center;gap:8px;height:46px;padding:env(safe-area-inset-top) 10px 0;box-sizing:content-box;flex:none}
+.topbar{position:relative;background:var(--bar);color:#fff;display:flex;align-items:center;gap:8px;height:46px;padding:env(safe-area-inset-top) 10px 0;box-sizing:content-box;flex:none}
 .appname{font-family:'AlCal Logo',Georgia,serif;font-weight:900;font-stretch:87.5%;font-size:23px;line-height:1;letter-spacing:-.045em;transform:scaleY(1.08);display:inline-block}
 b,strong,.bold,.range,.dayhead .num,.mini-head,.cats h3,.plist h3,.colhead,.apptab,.btn.primary,.dialog h2,.empty-title{font-weight:600;letter-spacing:-.01em}
 .ev,.chip,.card,.li,input,textarea,.sel,.toast .user{font-family:var(--sans);font-stretch:100%;letter-spacing:normal}
@@ -299,6 +299,69 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
 .status.bad{color:var(--now)}
 #syncDlg section+section{border-top:1px solid var(--line);padding-top:16px}
 
+/* Search */
+.search{position:relative;display:flex;align-items:center;flex:none}
+.search .sicon{position:absolute;left:8px;width:15px;height:15px;color:rgba(255,255,255,.65);pointer-events:none}
+.search input{width:230px;height:30px;min-height:0;padding:0 10px 0 30px;border-radius:4px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:13.5px;-webkit-appearance:none;appearance:none}
+.search input::placeholder{color:rgba(255,255,255,.55)}
+.search input:focus{outline:none;background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.45)}
+.search input::-webkit-search-cancel-button{filter:invert(1);opacity:.6}
+.search .sclose,#btnSearch{display:none;color:#fff}
+.sres{position:fixed;z-index:47;top:calc(52px + env(safe-area-inset-top));right:10px;width:min(460px,calc(100vw - 20px));max-height:min(70vh,560px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.22);padding:4px;display:none}
+.sres.open{display:block}
+.sres h4{margin:8px 10px 4px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text2);font-weight:600}
+.sr{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:4px;cursor:pointer}
+.sr.on,.sr:hover{background:var(--line-soft)}
+.sr .sbar{width:4px;align-self:stretch;min-height:28px;border-radius:2px;background:var(--c);flex:none}
+.sr .stext{flex:1;min-width:0}
+.sr .stitle{font-family:var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr .smeta{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.sr mark{background:color-mix(in srgb,var(--brand) 18%,transparent);color:inherit;border-radius:2px}
+.sres .snone{padding:14px 12px;color:var(--text2)}
+
+/* Agenda */
+.agscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.agenda{max-width:880px;margin:0 auto;padding:4px 16px calc(28px + env(safe-area-inset-bottom))}
+.aday{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+.aday.empty{padding:4px 0}
+.ahead{width:132px;flex:none;display:flex;align-items:baseline;gap:8px;cursor:pointer;padding-top:4px;border-radius:4px}
+.ahead .anum{font-size:22px;font-weight:600;min-width:30px;text-align:right}
+.ahead .aname{font-size:12.5px;color:var(--text2);line-height:1.25}
+.aday.empty .ahead .anum{font-size:16px;color:var(--text2)}
+.aday.today .anum,.aday.today .aname{color:var(--brand)}
+.aday.weekend:not(.today) .anum{opacity:.7}
+.aitems{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.arow{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:4px;cursor:pointer;min-height:34px}
+.arow:hover{background:var(--line-soft)}
+.atime{width:124px;flex:none;font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abar{width:4px;align-self:stretch;border-radius:2px;background:var(--c);flex:none}
+.arow.task .abar{background:none;border:1.5px dashed var(--text2)}
+.atext{flex:1;min-width:0;font-family:var(--sans)}
+.atitle{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ameta{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arow .rec{opacity:.6;display:inline-flex}
+.arow .rec svg{width:13px;height:13px}
+.anone{padding:6px 8px;color:var(--text2);font-size:13px;cursor:pointer;border-radius:4px}
+.anone:hover{background:var(--line-soft)}
+
+/* Subscribed calendars and read-only entries */
+.cats h3.sub{margin-top:14px}
+.cat .fstat{font-size:11px;color:var(--text2);margin-left:auto;white-space:nowrap}
+.chip.feed,.ev.feed{cursor:default}
+.ev.feed{border-left-style:dotted}
+.chip.feed.fill{border-left-style:dotted}
+
+/* Merged edits and backups */
+.cfl{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:13px}
+.cfl .ct{font-weight:600;margin-bottom:2px}
+.cfl .cw{color:var(--text2);font-size:12px;margin-bottom:4px}
+.cfl .cv{margin:2px 0;word-break:break-word}
+.cfl .cv span{color:var(--text2)}
+.bk{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.bk .bw{flex:1;min-width:0}
+.bk .bm{font-size:12px;color:var(--text2)}
+.bk .btn{height:28px;padding:0 10px}
+
 /* Phone */
 @media (max-width:760px){
   :root{--gutter:46px}
@@ -337,6 +400,19 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
   .chip .tm{display:none}
   .chip .dot{margin-right:3px;width:6px;height:6px}
   .ev{padding:1px 4px;font-size:11px}
+  .search{display:none}
+  #btnSearch{display:inline-flex}
+  body.searching .search{display:flex;position:absolute;left:8px;right:8px;top:env(safe-area-inset-top);height:42px;background:var(--bar);z-index:41}
+  body.searching .search input{flex:1;width:auto;font-size:16px;height:32px}
+  body.searching .search .sclose{display:inline-flex}
+  .sres{top:calc(48px + env(safe-area-inset-top));left:6px;right:6px;width:auto;max-height:calc(100dvh - 120px)}
+  .agenda{padding:0 10px calc(84px + env(safe-area-inset-bottom))}
+  .aday{gap:8px}
+  .ahead{width:58px;flex-direction:column;align-items:flex-start;gap:0}
+  .ahead .anum{text-align:left}
+  .ahead .aname{font-size:11px}
+  .atime{width:74px;font-size:11.5px;white-space:normal;line-height:1.25}
+  .arow{padding:6px 4px;gap:8px}
 }
 </style>
 </head>
@@ -347,6 +423,12 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
   <nav class="apptabs"><button class="apptab" data-mode="calendar">Calendar</button><button class="apptab" data-mode="planner">Planner</button><button class="apptab" data-mode="purchase">Purchase</button><button class="apptab" data-mode="reading">Reading</button><button class="apptab" data-mode="ideas">Ideas</button></nav>
   <span class="spacer"></span>
   <span class="pill" id="offline">Offline</span>
+  <div class="search" id="search" role="search">
+    <svg class="sicon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+    <input id="q" type="search" placeholder="Search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Search events, items and lists" aria-controls="sres">
+    <button class="iconbtn sclose" id="qClose" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <button class="iconbtn" id="btnSearch" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
   <button class="iconbtn" id="btnSync" data-state="off" aria-label="Sync and reminders" title="Sync is off"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/></svg></button>
 </header>
 <div class="cmdbar">
@@ -361,10 +443,10 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
   <div class="range list-only" id="ltitle"></div>
   <span class="spacer"></span>
   <div class="seg cal-only" id="seg">
-    <button data-v="day">Day</button><button data-v="workweek">Work week</button><button data-v="week">Week</button><button data-v="month">Month</button>
+    <button data-v="day">Day</button><button data-v="workweek">Work week</button><button data-v="week">Week</button><button data-v="month">Month</button><button data-v="agenda">Agenda</button>
   </div>
   <select class="viewsel cal-only" id="viewsel" aria-label="View">
-    <option value="day">Day</option><option value="3day">3 days</option><option value="workweek">Work week</option><option value="week">Week</option><option value="month">Month</option>
+    <option value="day">Day</option><option value="3day">3 days</option><option value="workweek">Work week</option><option value="week">Week</option><option value="month">Month</option><option value="agenda">Agenda</option>
   </select>
   <button class="btn plan-only" id="btnAddCol"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Add column</span></button>
   <button class="iconbtn" id="btnMore" aria-label="More options"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
@@ -477,6 +559,7 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
   </div>
 </div>
 <div class="pop" id="pop"></div>
+<div class="sres" id="sres" role="listbox" aria-label="Search results"></div>
 
 <div class="overlay" id="syncDlg">
   <div class="dialog" role="dialog" aria-label="Sync and reminders">
@@ -497,6 +580,19 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
         <div class="frow"><button class="btn primary" id="pushOn"></button><button class="btn" id="pushTest">Send a test</button></div>
         <div class="status" id="pushStatus"></div>
         <label class="fl" style="margin-top:14px">Default reminder for new events<select id="defRem"></select></label>
+      </section>
+      <section id="conflictSec" class="hidden">
+        <h3 class="sh">Merged edits</h3>
+        <p class="hint">These records were changed on two devices before they synced. Changes to different fields were combined. Where both devices changed the same field, the later edit was kept; the other version is shown here so nothing is lost.</p>
+        <div id="conflicts"></div>
+        <div class="frow"><button class="btn" id="conflictClear">Clear this list</button></div>
+      </section>
+      <section id="backupSec" class="hidden">
+        <h3 class="sh">Backups</h3>
+        <p class="hint">Every night the server saves a snapshot of all your data and keeps the last 14. If a sync goes wrong or this device loses its storage, restore one here.</p>
+        <div id="backups"></div>
+        <div class="frow"><button class="btn" id="backupNow">Back up now</button></div>
+        <div class="status" id="backupStatus"></div>
       </section>
       <section id="mcpSec" class="hidden">
         <h3 class="sh">Claude connector</h3>
@@ -551,7 +647,7 @@ const CATS = [
   {id:'red',    name:'Important', c:'#ff2d55'},
   {id:'teal',   name:'Other',     c:'#00c2c7'}
 ];
-function catOf(id){ return CATS.find(c => c.id === id) || CATS[0]; }
+function catOf(id){ return CATS.find(c => c.id === id) || (typeof FEEDS !== 'undefined' && FEEDS.find(f => f.id === id)) || CATS[0]; }
 const ICON_PEN = '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>';
 function applyCatNames(){ let n = null; try{ const r = ST.mem.get('catNames'); n = r && r.value; }catch(e){} n = n || LS.get('catNames', {}) || {}; CATS.forEach(c => { if(typeof n[c.id] === 'string' && n[c.id].trim()) c.name = n[c.id]; }); }
 function fillCatSelect(){ const s = document.getElementById('fCat'); if(!s) return; const v = s.value; s.innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(''); if(v) s.value = v; }
@@ -570,16 +666,37 @@ class Store {
   list(){ return [...this.mem.values()].filter(x => !x.deleted); }
 }
 const DB = new Store('events'), PJ = new Store('projects'), CD = new Store('cards'), ST = new Store('settings'), LI = new Store('lists');
+// The last version of each record this device received from (or sent to) the sync server.
+// Comparing a record with it shows which fields were changed here, so sync can merge field by field.
+const Shadow = {
+  mem: new Map(), queue: [], ft: null,
+  key(kind, id){ return kind + '\n' + id; },
+  get(kind, id){ const r = this.mem.get(this.key(kind, id)); return r ? r.data : null; },
+  set(kind, data){
+    const d = Object.assign({}, data); delete d._lt;
+    const r = {k: this.key(kind, d.id), data: d}; this.mem.set(r.k, r); this.queue.push(r);
+    if(!this.ft) this.ft = setTimeout(() => this.flush(), 0);
+  },
+  flush(){
+    this.ft = null; const q = this.queue; this.queue = [];
+    if(!IDB.db || !q.length) return;
+    try{ const os = IDB.db.transaction('shadow', 'readwrite').objectStore('shadow'); q.forEach(r => os.put(r)); }catch(e){}
+  },
+  clear(){ this.mem.clear(); this.queue = []; if(IDB.db){ try{ IDB.db.transaction('shadow', 'readwrite').objectStore('shadow').clear(); }catch(e){} } },
+  load(db){ return new Promise(res => { try{ const q = db.transaction('shadow').objectStore('shadow').getAll(); q.onsuccess = () => { q.result.forEach(r => this.mem.set(r.k, r)); res(); }; q.onerror = () => res(); }catch(e){ res(); } }); }
+};
 const IDB = {
   db:null,
   async open(){
     try{
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('personal-calendar', 4);
-        r.onupgradeneeded = () => { const d = r.result; ['events','projects','cards','settings','lists'].forEach(n => { if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:'id'}); }); };
+        const r = indexedDB.open('personal-calendar', 5);
+        r.onupgradeneeded = () => { const d = r.result; ['events','projects','cards','settings','lists'].forEach(n => { if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:'id'}); });
+          if(!d.objectStoreNames.contains('shadow')) d.createObjectStore('shadow', {keyPath:'k'}); };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
       for(const st of [DB, PJ, CD, ST, LI]) await st.load(this.db);
+      await Shadow.load(this.db);
     }catch(e){ this.db = null; setTimeout(() => toast('Storage is unavailable here, so your data will not be kept'), 300); }
   }
 };
@@ -617,41 +734,45 @@ function nth(b, f, n){
 function mk(ev, s, e, rec){ return {ev, s, e, allDay:ev.allDay, rec:!!rec, key:dkey(s)}; }
 function occurrences(rs, re, all){
   const out = [];
-  for(const ev of DB.list()){
+  for(const ev of DB.list().concat(feedEvents(rs, re, all ? null : S.hidden))){
     if(!all && S.hidden.has(ev.cat)) continue;
-    const [s, e] = baseRange(ev); const dur = e - s;
-    const r = ev.repeat || {}; const f = r.freq || 'none';
-    if(f === 'none'){ if(s < re && e > rs) out.push(mk(ev, s, e)); continue; }
-    const until = r.until ? addDays(parseKey(r.until), 1) : null;
-    const ex = new Set(ev.exdates || []);
-    const count = r.count || Infinity, step = Math.max(1, r.interval || 1);
-    if(f === 'weekdays'){
-      let d = new Date(s), made = 0;
-      if(count === Infinity && rs - s > dur) d = addDays(s, Math.max(0, Math.floor((rs - s - dur)/864e5) - 1));
-      for(let i = 0; i < 5000; i++){
-        if(d >= re || (until && d >= until) || made >= count) break;
-        const wd = d.getDay();
-        if(wd !== 0 && wd !== 6){
-          made++;
-          const oe = new Date(d.getTime() + dur);
-          if(oe > rs && !ex.has(dkey(d))) out.push(mk(ev, d, oe, true));
-        }
-        d = addDays(d, 1);
+    occOf(ev, rs, re, out);
+  }
+  return out;
+}
+function occOf(ev, rs, re, out){
+  const [s, e] = baseRange(ev); const dur = e - s;
+  const r = ev.repeat || {}; const f = r.freq || 'none';
+  if(f === 'none'){ if(s < re && e > rs) out.push(mk(ev, s, e)); return out; }
+  const until = r.until ? addDays(parseKey(r.until), 1) : null;
+  const ex = new Set(ev.exdates || []);
+  const count = r.count || Infinity, step = Math.max(1, r.interval || 1);
+  if(f === 'weekdays'){
+    let d = new Date(s), made = 0;
+    if(count === Infinity && rs - s > dur) d = addDays(s, Math.max(0, Math.floor((rs - s - dur)/864e5) - 1));
+    for(let i = 0; i < 5000; i++){
+      if(d >= re || (until && d >= until) || made >= count) break;
+      const wd = d.getDay();
+      if(wd !== 0 && wd !== 6){
+        made++;
+        const oe = new Date(d.getTime() + dur);
+        if(oe > rs && !ex.has(dkey(d))) out.push(mk(ev, d, oe, true));
       }
-      continue;
+      d = addDays(d, 1);
     }
-    const approx = {daily:864e5, weekly:6048e5, monthly:31*864e5, yearly:366*864e5}[f];
-    if(!approx) continue;
-    let n0 = 0;
-    if(rs - s > dur) n0 = Math.max(0, Math.floor((rs - s - dur)/(approx*step)) - 2);
-    for(let n = n0; n < n0 + 4000; n++){
-      if(n >= count) break;
-      const os = nth(s, f, n*step);
-      if(!os) continue;
-      if(os >= re || (until && os >= until)) break;
-      const oe = new Date(os.getTime() + dur);
-      if(oe > rs && !ex.has(dkey(os))) out.push(mk(ev, os, oe, true));
-    }
+    return out;
+  }
+  const approx = {daily:864e5, weekly:6048e5, monthly:31*864e5, yearly:366*864e5}[f];
+  if(!approx) return out;
+  let n0 = 0;
+  if(rs - s > dur) n0 = Math.max(0, Math.floor((rs - s - dur)/(approx*step)) - 2);
+  for(let n = n0; n < n0 + 4000; n++){
+    if(n >= count) break;
+    const os = nth(s, f, n*step);
+    if(!os) continue;
+    if(os >= re || (until && os >= until)) break;
+    const oe = new Date(os.getTime() + dur);
+    if(oe > rs && !ex.has(dkey(os))) out.push(mk(ev, os, oe, true));
   }
   return out;
 }
@@ -663,16 +784,20 @@ function viewDays(){
     case 'day': return [d];
     case '3day': return [0,1,2].map(i => addDays(d, i));
     case 'workweek': { const m = startOfWeek(d, 1); return [0,1,2,3,4].map(i => addDays(m, i)); }
+    case 'agenda': return Array.from({length: 14}, (_, i) => addDays(d, i));
     default: { const m = startOfWeek(d, S.weekStart); return [0,1,2,3,4,5,6].map(i => addDays(m, i)); }
   }
 }
-function setView(v){ S.view = v; LS.set('view', v); render(); }
+function setView(v){
+  if(v === 'agenda' && S.view !== 'agenda'){ const t = dkey(new Date()); if(S.view !== 'month' ? viewDays().some(x => dkey(x) === t) : S.date.getMonth() === new Date().getMonth()) S.date = sod(new Date()); }
+  S.view = v; LS.set('view', v); render();
+}
 function setMode(m){ S.mode = m; LS.set('mode', m); document.body.classList.remove('side-open'); render();
   const t = document.querySelector('.apptab.on'); if(t && isMobile()) try{ t.scrollIntoView({block:'nearest', inline:'nearest'}); }catch(e){} }
 function nav(dir){
   if(dir === 0) S.date = sod(new Date());
   else if(S.view === 'month') S.date = new Date(S.date.getFullYear(), S.date.getMonth() + dir, 1);
-  else S.date = addDays(S.date, dir * ({day:1, '3day':3}[S.view] || 7));
+  else S.date = addDays(S.date, dir * ({day:1, '3day':3, agenda:14}[S.view] || 7));
   S.miniMonth = null; render();
 }
 function render(){
@@ -685,7 +810,7 @@ function render(){
   updateRange(); renderMini(); renderCats();
   document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.v === S.view));
   $('#viewsel').value = S.view;
-  if(S.view === 'month') renderMonth(); else renderTimeGrid(viewDays());
+  if(S.view === 'month') renderMonth(); else if(S.view === 'agenda') renderAgenda(); else renderTimeGrid(viewDays());
 }
 function updateRange(){
   const short = isMobile(); let txt;
@@ -741,6 +866,17 @@ function renderCats(){
   const t = el('div', 'cat', `<span class="box${on?' on':''}" style="--c:#616161">${on?ICON_CHECK:''}</span>Planner items`);
   t.onclick = () => { on ? S.hidden.add('tasks') : S.hidden.delete('tasks'); LS.set('hidden', [...S.hidden]); render(); };
   box.append(t);
+  box.append(el('h3', 'sub', 'Subscribed'));
+  FEEDS.forEach(f => {
+    const fon = !S.hidden.has(f.id);
+    let st = '', tip = '';
+    if(f.url){ const c = Remote.get(f); if(!c || !(c.events || []).length){ st = c && c.err ? 'not loaded' : 'loading'; tip = (c && c.err) || ''; } else tip = 'Updated ' + new Date(c.at).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'}); }
+    if(f.key === 'jewish' && !HEB_FMT){ st = 'unsupported'; tip = 'This browser cannot convert dates to the Hebrew calendar.'; }
+    const r = el('div', 'cat', `<span class="box${fon?' on':''}" style="--c:${f.c}">${fon?ICON_CHECK:''}</span><span class="catname">${esc(f.name)}</span>` + (st ? `<span class="fstat">${esc(st)}</span>` : ''));
+    if(tip) r.title = tip;
+    r.onclick = () => { fon ? S.hidden.add(f.id) : S.hidden.delete(f.id); LS.set('hidden', [...S.hidden]); render(); if(!fon && f.url) Remote.refresh(f, true); };
+    box.append(r);
+  });
 }
 
 /* ---------- time grid (day / 3 days / work week / week) ---------- */
@@ -786,7 +922,7 @@ function renderTimeGrid(days){
     const cell = el('div', 'cell'); cell.dataset.date = k;
     occ.filter(o => (o.allDay || o.e - o.s >= 864e5) && o.s < de && o.e > ds)
        .sort((a, b) => a.s - b.s)
-       .forEach(o => { const x = chip(o, false); x.onclick = e => { e.stopPropagation(); openOccurrence(o); }; cell.append(x); });
+       .forEach(o => { const x = chip(o, false); x.onclick = e => { e.stopPropagation(); openAny(o); }; cell.append(x); });
     tasksOn(k).forEach(x => cell.append(taskChip(x)));
     cell.onclick = e => { if(e.target === cell) openEditor(null, {allDay:true, start:d}); };
     ad.append(cell);
@@ -807,7 +943,7 @@ function renderTimeGrid(days){
 }
 function evBlock(g, ds, tg, days){
   const o = g.o, cat = catOf(o.ev.cat);
-  const b = el('div', 'ev'); b.style.setProperty('--c', cat.c);
+  const b = el('div', 'ev' + (o.ev.feed ? ' feed' : '')); b.style.setProperty('--c', cat.c);
   const top = (g.s - ds)/36e5*HOUR, h = Math.max((g.e - g.s)/36e5*HOUR, HOUR/2 - 4);
   b.style.top = top + 'px'; b.style.height = (h - 2) + 'px';
   b.style.left = `calc(${g.col/g.n*100}% + 2px)`; b.style.width = `calc(${100/g.n}% - 4px)`;
@@ -817,9 +953,10 @@ function evBlock(g, ds, tg, days){
       ? `<div class="t">${title}</div><div class="m">${esc(time)}${o.ev.location ? ' · ' + esc(o.ev.location) : ''}</div>`
       : `<div class="t">${title} <span style="font-weight:400;opacity:.75">${esc(fmtTime(o.s))}</span></div>`)
     + (o.rec ? `<span class="rec">${ICON_REC}</span>` : '')
-    + (g.s === +o.s ? '<div class="rz top"></div>' : '') + (g.e === +o.e ? '<div class="rz bot"></div>' : '');
+    + (!o.ev.feed && g.s === +o.s ? '<div class="rz top"></div>' : '') + (!o.ev.feed && g.e === +o.e ? '<div class="rz bot"></div>' : '');
   b.title = (o.ev.title || '(No title)') + '\n' + time + (o.ev.location ? '\n' + o.ev.location : '');
   b.oncontextmenu = e => evMenu(e, o);
+  if(o.ev.feed){ b.onclick = e => { e.stopPropagation(); openFeed(o); }; return b; }   // subscribed entries are read-only
   b.addEventListener('pointerdown', e => {
     if(e.button !== 0) return;
     e.stopPropagation();
@@ -949,7 +1086,7 @@ function shiftDays(ev, n){
 /* ---------- month ---------- */
 function chip(o, inMonth){
   const c = catOf(o.ev.cat);
-  const x = el('div', 'chip' + (o.allDay || !inMonth ? ' fill' : ''));
+  const x = el('div', 'chip' + (o.allDay || !inMonth ? ' fill' : '') + (o.ev.feed ? ' feed' : ''));
   x.style.setProperty('--c', c.c);
   x.innerHTML = (inMonth && !o.allDay ? `<span class="dot"></span><span class="tm">${esc(fmtTime(o.s))}</span>` : '') + esc(o.ev.title || '(No title)');
   x.title = (o.ev.title || '(No title)') + (o.allDay ? '' : '\n' + fmtTime(o.s) + ' - ' + fmtTime(o.e));
@@ -1003,6 +1140,7 @@ function fitCell(cell){
   }
 }
 function bindMonthChip(x, o){
+  if(o.ev.feed){ x.addEventListener('click', e => { e.stopPropagation(); openFeed(o); }); return; }
   x.addEventListener('pointerdown', e => {
     if(e.button !== 0) return;
     let tgt = null;
@@ -1024,6 +1162,230 @@ function bindMonthChip(x, o){
       onTap(){ openOccurrence(o); }
     });
   });
+}
+
+/* ---------- subscribed calendars (read-only) ---------- */
+// Jewish and Zurich holidays and full moons are computed on the device, so they work offline.
+// Tottenham fixtures come from a public .ics feed, loaded through the sync server and kept for offline use.
+const FEEDS = [
+  {id:'feed-jewish', key:'jewish', name:'Jewish holidays', c:'#d9a400', gen: jewishYear},
+  {id:'feed-zurich', key:'zurich', name:'Zurich holidays', c:'#e3242b', gen: zurichYear},
+  {id:'feed-spurs',  key:'spurs',  name:'Tottenham Hotspur', c:'#7b8ee0', url:'https://pub.fotmob.com/prod/pub/api/v2/calendar/team/8586.ics'},
+  {id:'feed-moon',   key:'moon',   name:'Full moon', c:'#a9a9a9', gen: moonYear}
+];
+const FeedCache = new Map();
+function feedEvents(rs, re, hidden){
+  const out = [], y0 = new Date(rs).getFullYear() - 1, y1 = Math.min(new Date(re).getFullYear(), y0 + 6);
+  for(const f of FEEDS){
+    if(hidden && hidden.has(f.id)) continue;
+    let list = [];
+    if(f.url) list = Remote.events(f);
+    else for(let y = y0; y <= y1; y++) list = list.concat(feedYear(f, y));
+    for(const e of list) if(e.start < +re && e.end > +rs) out.push(e);
+  }
+  return out;
+}
+function feedYear(f, y){
+  const k = f.key + ':' + y;
+  if(!FeedCache.has(k)){ let v = []; try{ v = f.gen(y, f); }catch(e){} FeedCache.set(k, v); }
+  return FeedCache.get(k);
+}
+function feedDay(f, slug, title, d, days, notes){
+  const sd = dkey(d), ed = dkey(addDays(d, (days || 1) - 1));
+  return {id: f.id + ':' + sd + ':' + slug, feed: f.key, cat: f.id, title, allDay: true, sd, ed, start: +parseKey(sd), end: +addDays(parseKey(ed), 1),
+    location: '', notes: notes || '', repeat: {freq:'none'}, exdates: []};
+}
+
+// Hebrew calendar through Intl (Safari and Chrome both support it).
+const HEB_FMT = (() => { try{ const f = new Intl.DateTimeFormat('en-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric', timeZone:'UTC'}); return f.resolvedOptions().calendar === 'hebrew' ? f : null; }catch(e){ return null; } })();
+function hebMonth(s){
+  s = String(s).toLowerCase().replace(/[^a-z ]/g, '').trim();
+  if(/^adar (i|1)$/.test(s)) return 'adar1';
+  if(s.startsWith('adar')) return 'adar';
+  const map = [['tis','tishri'], ['hes','heshvan'], ['che','heshvan'], ['mar','heshvan'], ['kis','kislev'], ['tev','tevet'], ['she','shevat'], ['shv','shevat'],
+    ['nis','nisan'], ['iya','iyar'], ['iyy','iyar'], ['siv','sivan'], ['tam','tamuz'], ['elu','elul']];
+  if(s === 'av' || s === 'ab') return 'av';
+  const m = map.find(([p]) => s.startsWith(p)); return m ? m[1] : s;
+}
+function hebDate(d){
+  const out = {m:'', d:0};
+  HEB_FMT.formatToParts(new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12))).forEach(p => {
+    if(p.type === 'month') out.m = hebMonth(p.value); else if(p.type === 'day') out.d = +p.value;
+  });
+  return out;
+}
+const JEWISH = [   // month, day, length in days (diaspora), name, note, rule for moving the date
+  ['tishri', 1, 2, 'Rosh Hashanah', 'Jewish New Year.'],
+  ['tishri', 10, 1, 'Yom Kippur', 'Day of Atonement, a fast day.'],
+  ['tishri', 15, 7, 'Sukkot', 'Feast of Tabernacles.'],
+  ['tishri', 22, 1, 'Shemini Atzeret', ''],
+  ['tishri', 23, 1, 'Simchat Torah', ''],
+  ['kislev', 25, 8, 'Chanukah', 'Festival of Lights. The first candle is lit on the evening before.'],
+  ['shevat', 15, 1, 'Tu BiShvat', 'New Year of the Trees.'],
+  ['adar', 14, 1, 'Purim', ''],
+  ['nisan', 15, 8, 'Pesach', 'Passover. The first Seder is on the evening before.'],
+  ['nisan', 27, 1, 'Yom HaShoah', 'Holocaust Remembrance Day.', 'shoah'],
+  ['iyar', 5, 1, 'Yom HaAtzmaut', 'Israel Independence Day.', 'atzmaut'],
+  ['iyar', 18, 1, 'Lag BaOmer', ''],
+  ['iyar', 28, 1, 'Yom Yerushalayim', 'Jerusalem Day.'],
+  ['sivan', 6, 2, 'Shavuot', ''],
+  ['av', 9, 1, "Tisha B'Av", 'Fast day.', 'av']
+];
+function jewishYear(y, f){
+  if(!HEB_FMT) return [];
+  const out = [], eve = ' Begins at sundown the evening before.';
+  for(let d = new Date(y, 0, 1); d.getFullYear() === y; d = addDays(d, 1)){
+    const h = hebDate(d);
+    for(const [m, day, len, name, note, rule] of JEWISH){
+      if(h.m !== m || h.d !== day) continue;
+      let at = d; const wd = d.getDay();
+      if(rule === 'shoah') at = addDays(d, wd === 5 ? -1 : wd === 0 ? 1 : 0);
+      if(rule === 'atzmaut'){
+        at = addDays(d, wd === 5 ? -1 : wd === 6 ? -2 : wd === 1 ? 1 : 0);
+        out.push(feedDay(f, 'yom-hazikaron', 'Yom HaZikaron', addDays(at, -1), 1, 'Israel Memorial Day.' + eve));
+      }
+      if(rule === 'av' && wd === 6) at = addDays(d, 1);
+      out.push(feedDay(f, name.toLowerCase().replace(/[^a-z]+/g, '-'), name, at, len, (note ? note + ' ' : '') + eve.trim()));
+    }
+  }
+  return out;
+}
+
+// Public holidays of the canton of Zurich, plus the two city festivals with a free afternoon.
+function easterSunday(y){
+  const a = y % 19, b = Math.floor(y/100), c = y % 100, d = Math.floor(b/4), e = b % 4, f = Math.floor((b + 8)/25), g = Math.floor((b - f + 1)/3);
+  const h = (19*a + b - d - g + 15) % 30, i = Math.floor(c/4), k = c % 4, l = (32 + 2*e + 2*i - h - k) % 7, m = Math.floor((a + 11*h + 22*l)/451);
+  const n = h + l - 7*m + 114;
+  return new Date(y, Math.floor(n/31) - 1, n % 31 + 1);
+}
+function zurichYear(y, f){
+  const E = easterSunday(y), D = (m, d) => new Date(y, m - 1, d);
+  const firstMonApr = addDays(D(4, 1), (8 - D(4, 1).getDay()) % 7);
+  let sech = addDays(firstMonApr, 14);                                   // third Monday in April
+  if(dkey(sech) === dkey(addDays(E, 1))) sech = addDays(sech, 7);        // on Easter Monday: a week later
+  else if(dkey(sech) === dkey(addDays(E, -6))) sech = addDays(sech, -7); // in Holy Week: a week earlier
+  const firstSunSep = addDays(D(9, 1), (7 - D(9, 1).getDay()) % 7);
+  const knab = addDays(firstSunSep, 8);                                  // Monday after the second Sunday in September
+  const pub = 'Public holiday in the canton of Zurich.', city = 'Afternoon off in the city of Zurich (not a statutory holiday).';
+  return [
+    [D(1, 1), 'Neujahrstag', "New Year's Day. " + pub], [D(1, 2), 'Berchtoldstag', pub],
+    [addDays(E, -2), 'Karfreitag', 'Good Friday. ' + pub], [addDays(E, 1), 'Ostermontag', 'Easter Monday. ' + pub],
+    [sech, 'Sechseläuten', 'Spring festival of the guilds. ' + city], [D(5, 1), 'Tag der Arbeit', 'Labour Day. ' + pub],
+    [addDays(E, 39), 'Auffahrt', 'Ascension Day. ' + pub], [addDays(E, 50), 'Pfingstmontag', 'Whit Monday. ' + pub],
+    [D(8, 1), 'Bundesfeier', 'Swiss National Day. ' + pub], [knab, 'Knabenschiessen', 'Shooting festival. ' + city + ' Schools are closed all day.'],
+    [D(12, 25), 'Weihnachtstag', 'Christmas Day. ' + pub], [D(12, 26), 'Stephanstag', "St Stephen's Day. " + pub]
+  ].map(([d, n, note]) => feedDay(f, n.toLowerCase().replace(/[^a-z]+/g, '-'), n, d, 1, note));
+}
+
+// Full moons (Meeus, Astronomical Algorithms, ch. 49). Accurate to a few minutes.
+function fullMoonMs(k){
+  const T = k / 1236.85, R = Math.PI / 180;
+  const E = 1 - 0.002516*T - 0.0000074*T*T;
+  const M = (2.5534 + 29.10535670*k - 0.0000014*T*T) * R;
+  const Mp = (201.5643 + 385.81693528*k + 0.0107582*T*T + 0.00001238*T*T*T) * R;
+  const F = (160.7108 + 390.67050284*k - 0.0016118*T*T - 0.00000227*T*T*T) * R;
+  const O = (124.7746 - 1.56375588*k + 0.0020672*T*T) * R;
+  const sin = Math.sin;
+  let jde = 2451550.09766 + 29.530588861*k + 0.00015437*T*T - 0.000000150*T*T*T;
+  jde += -0.40614*sin(Mp) + 0.17302*E*sin(M) + 0.01614*sin(2*Mp) + 0.01043*sin(2*F) + 0.00734*E*sin(Mp - M) - 0.00514*E*sin(Mp + M)
+    + 0.00209*E*E*sin(2*M) - 0.00111*sin(Mp - 2*F) - 0.00057*sin(Mp + 2*F) + 0.00056*E*sin(2*Mp + M) - 0.00042*sin(3*Mp)
+    + 0.00042*E*sin(M + 2*F) + 0.00038*E*sin(M - 2*F) - 0.00024*E*sin(2*Mp - M) - 0.00017*sin(O) - 0.00007*sin(Mp + 2*M)
+    + 0.00004*sin(2*Mp - 2*F) + 0.00004*sin(3*M) + 0.00003*sin(Mp + M - 2*F) + 0.00003*sin(2*Mp + 2*F) - 0.00003*sin(Mp + M + 2*F)
+    + 0.00003*sin(Mp - M + 2*F) - 0.00002*sin(Mp - M - 2*F) - 0.00002*sin(3*Mp + M) + 0.00002*sin(4*Mp);
+  return (jde - 2440587.5) * 864e5 - 69e3;   // Terrestrial Time to UTC (about 69 s)
+}
+function moonYear(y, f){
+  const out = [], k0 = Math.floor((y - 2000) * 12.3685) - 2;
+  for(let k = k0; k < k0 + 16; k++){
+    const t = fullMoonMs(k + 0.5), d = new Date(t);
+    if(d.getFullYear() !== y) continue;
+    out.push(feedDay(f, 'full', 'Full moon', sod(d), 1, 'Exact time: ' + fmtTime(d) + ' (' + tzLabelAt(d) + ').'));
+  }
+  return out;
+}
+function tzLabelAt(d){ const o = -d.getTimezoneOffset(), h = Math.floor(Math.abs(o)/60), m = Math.abs(o) % 60; return 'UTC' + (o >= 0 ? '+' : '-') + h + (m ? ':' + pad(m) : ''); }
+
+const Remote = {
+  busy: {},
+  get(f){ return LS.get('feed.' + f.key, null); },
+  events(f){ const c = this.get(f); return c && c.url === f.url && Array.isArray(c.events) ? c.events : []; },
+  async refresh(f, force){
+    if(!navigator.onLine || this.busy[f.key]) return;
+    const c = this.get(f);
+    if(!force && c && c.url === f.url && Date.now() - (c.at || 0) < 6*36e5) return;
+    if(!force && c && c.errAt && Date.now() - c.errAt < 15*6e4) return;
+    this.busy[f.key] = true;
+    try{
+      let text = null, err = null;
+      if(Sync.cfg){ try{ text = (await api('/api/feed', {url: f.url})).text; }catch(e){ err = /Unknown request|Not found/.test(e.message) ? new Error('Update the sync server to load this feed') : e; } }
+      if(text == null){
+        try{ const r = await fetch(f.url, {mode:'cors'}); if(r.ok) text = await r.text(); }
+        catch(e){ if(!err) err = new Error(Sync.cfg ? 'Could not load the feed' : 'Connect the sync server to load this feed'); }
+      }
+      if(text == null || !/BEGIN:VCALENDAR/.test(text)) throw err || new Error('Could not load the feed');
+      const events = parseICS(text).events.map(e => ({id: f.id + ':' + e.id, feed: f.key, cat: f.id, title: e.title || '', allDay: e.allDay, sd: e.sd, ed: e.ed,
+        start: e.start, end: e.end, location: e.location || '', notes: String(e.notes || '').slice(0, 600), repeat: {freq:'none'}, exdates: []}));
+      LS.set('feed.' + f.key, {url: f.url, at: Date.now(), events});
+      if(!ED && !Drag.on) render();
+    }catch(e){
+      LS.set('feed.' + f.key, Object.assign({}, c && c.url === f.url ? c : {url: f.url, events: []}, {errAt: Date.now(), err: e.message || String(e)}));
+      if(S.mode === 'calendar') renderCats();
+    }finally{ this.busy[f.key] = false; }
+  },
+  refreshAll(force){ FEEDS.filter(f => f.url && !S.hidden.has(f.id)).forEach(f => this.refresh(f, force)); }
+};
+function fmtDay(d, y){ return new Date(d).toLocaleDateString([], {weekday:'short', day:'numeric', month:'short', year: y || new Date(d).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined}); }
+function whenText(o){
+  if(o.allDay){ const last = addDays(o.e, -1); return dkey(last) === dkey(o.s) ? fmtDay(o.s) : fmtDay(o.s) + ' - ' + fmtDay(last); }
+  return fmtDay(o.s) + ', ' + fmtTime(o.s) + ' - ' + fmtTime(o.e);
+}
+async function openFeed(o){
+  const f = FEEDS.find(x => x.key === o.ev.feed);
+  const msg = `<div>${esc(whenText(o))}</div>` + (o.ev.location ? `<div>${esc(o.ev.location)}</div>` : '')
+    + (o.ev.notes ? `<div style="margin-top:8px;white-space:pre-wrap">${esc(o.ev.notes)}</div>` : '')
+    + `<div style="margin-top:10px;font-size:12px">${esc(f ? f.name : 'Subscribed calendar')} · read only</div>`;
+  if(await choose(o.ev.title || '(No title)', msg, [['copy', 'Copy to my calendar']]) === 'copy') copyFeed(o);
+}
+function copyFeed(o){
+  openEditor(null, o.allDay ? {allDay: true, start: o.s} : {start: o.s, end: o.e});
+  F.title.value = o.ev.title || ''; F.loc.value = o.ev.location || ''; F.notes.value = o.ev.notes || '';
+  if(o.allDay) F.ed.value = dkey(addDays(o.e, -1));
+}
+
+/* ---------- agenda (next 14 days) ---------- */
+function renderAgenda(){
+  const c = $('#content'); c.innerHTML = '';
+  const days = viewDays(), rs = days[0], re = addDays(days[days.length - 1], 1);
+  const occ = occurrences(rs, re), today = dkey(new Date());
+  const sc = el('div', 'agscroll'), wrap = el('div', 'agenda');
+  days.forEach(d => {
+    const k = dkey(d), de = addDays(d, 1);
+    const list = occ.filter(o => o.s < de && o.e > d).sort((a, b) => (b.allDay - a.allDay) || (a.s - b.s) || ((a.ev.title || '') > (b.ev.title || '') ? 1 : -1));
+    const tasks = tasksOn(k);
+    const empty = !list.length && !tasks.length, wd = d.getDay();
+    const sec = el('section', 'aday' + (k === today ? ' today' : '') + (empty ? ' empty' : '') + (wd === 0 || wd === 6 ? ' weekend' : ''));
+    const head = el('div', 'ahead', `<span class="anum">${d.getDate()}</span><span class="aname">${esc(d.toLocaleDateString([], {weekday: isMobile() ? 'short' : 'long'}))}<br>${esc(d.toLocaleDateString([], {month:'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined}))}</span>`);
+    head.onclick = () => { S.date = d; setView('day'); };
+    const items = el('div', 'aitems');
+    list.forEach(o => {
+      const allDay = o.allDay || (o.s <= d && o.e >= de);
+      const time = allDay ? 'All day' : o.s < d ? 'Until ' + fmtTime(o.e) : o.e > de ? fmtTime(o.s) + ' →' : fmtTime(o.s) + ' - ' + fmtTime(o.e);
+      const meta = [o.ev.location, o.ev.feed ? (FEEDS.find(f => f.key === o.ev.feed) || {}).name : ''].filter(Boolean).join(' · ');
+      const r = el('div', 'arow', `<span class="atime">${esc(time)}</span><span class="abar"></span><span class="atext"><div class="atitle">${esc(o.ev.title || '(No title)')}</div>${meta ? `<div class="ameta">${esc(meta)}</div>` : ''}</span>${o.rec ? `<span class="rec">${ICON_REC}</span>` : ''}`);
+      r.style.setProperty('--c', catOf(o.ev.cat).c);
+      r.onclick = () => openAny(o); r.oncontextmenu = e => evMenu(e, o);
+      items.append(r);
+    });
+    tasks.forEach(x => {
+      const p = PJ.mem.get(x.projectId);
+      const r = el('div', 'arow task', `<span class="atime">Due</span><span class="abar"></span><span class="atext"><div class="atitle">${esc(x.title || '(No title)')}</div>${p ? `<div class="ameta">${esc(p.name)}</div>` : ''}</span>`);
+      r.onclick = () => openCard(x); r.oncontextmenu = e => cardMenu(e, x);
+      items.append(r);
+    });
+    if(empty){ const n = el('div', 'anone', 'Nothing planned'); n.onclick = () => openEditor(null, {start: defaultStart(d)}); items.append(n); }
+    sec.append(head, items); wrap.append(sec);
+  });
+  sc.append(wrap); c.append(sc);
 }
 
 /* ---------- editor ---------- */
@@ -1150,7 +1512,12 @@ async function deleteEditor(){
 let lastPtr = 'mouse';
 document.addEventListener('pointerdown', e => { lastPtr = e.pointerType; }, true);
 function ctxOk(e){ e.preventDefault(); e.stopPropagation(); return lastPtr === 'mouse' && !Drag.on; }
-function evMenu(e, o){ if(ctxOk(e)) popAt(e.clientX, e.clientY, [['Edit', () => openOccurrence(o)], ['Delete', () => deleteOccurrence(o), 'danger']]); }
+function evMenu(e, o){
+  if(!ctxOk(e)) return;
+  if(o.ev.feed) popAt(e.clientX, e.clientY, [['Details', () => openFeed(o)], ['Copy to my calendar', () => copyFeed(o)]]);
+  else popAt(e.clientX, e.clientY, [['Edit', () => openOccurrence(o)], ['Delete', () => deleteOccurrence(o), 'danger']]);
+}
+function openAny(o){ return o.ev.feed ? openFeed(o) : openOccurrence(o); }
 function cardMenu(e, x){ if(ctxOk(e)) popAt(e.clientX, e.clientY, [['Edit', () => openCard(x)], ['Delete', () => deleteCardById(x.id), 'danger']]); }
 async function deleteOccurrence(o){
   const ev = DB.mem.get(o.ev.id) || o.ev, name = esc(ev.title || '(No title)');
@@ -1628,6 +1995,131 @@ function toast(msg, action){
   t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), action ? 6000 : 3200);
 }
 
+/* ---------- search ---------- */
+const Q = $('#q'), SR = $('#sres');
+const SRS = {rows: [], sel: -1, t: null};
+function norm(s){ return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+function hilite(text, terms){
+  text = String(text || '');
+  const n = norm(text);
+  if(n.length !== text.length || !terms.length) return esc(text);
+  const on = new Array(text.length).fill(false);
+  terms.forEach(t => { let i = n.indexOf(t); while(i >= 0 && t){ for(let j = i; j < i + t.length; j++) on[j] = true; i = n.indexOf(t, i + t.length); } });
+  let out = '', open = false;
+  for(let i = 0; i < text.length; i++){
+    if(on[i] && !open){ out += '<mark>'; open = true; } else if(!on[i] && open){ out += '</mark>'; open = false; }
+    out += esc(text[i]);
+  }
+  return out + (open ? '</mark>' : '');
+}
+function searchRun(q){
+  const terms = norm(q).split(/\s+/).filter(Boolean);
+  const hit = (...parts) => { const n = norm(parts.join(' \n ')); return terms.every(t => n.includes(t)); };
+  const today = sod(new Date()), now = Date.now(), events = [];
+  for(const ev of DB.list()){
+    if(!hit(ev.title, ev.location, ev.notes, catOf(ev.cat).name)) continue;
+    let o = null;
+    if(ev.repeat && ev.repeat.freq && ev.repeat.freq !== 'none') o = occOf(ev, today, addDays(today, 800), []).sort((a, b) => a.s - b.s)[0] || null;
+    if(!o){ const [s, e] = baseRange(ev); o = mk(ev, s, e, false); }
+    events.push(o);
+  }
+  const feeds = [];
+  for(const ev of feedEvents(addDays(today, -60), addDays(today, 400), S.hidden)){
+    const f = FEEDS.find(x => x.key === ev.feed);
+    if(hit(ev.title, ev.location, ev.notes, f && f.name)) feeds.push(mk(ev, new Date(ev.start), new Date(ev.end), false));
+  }
+  feeds.sort((a, b) => Math.abs(a.e - now) - Math.abs(b.e - now));
+  const all = events.concat(feeds.slice(0, 25));
+  const up = all.filter(o => +o.e >= now).sort((a, b) => a.s - b.s), past = all.filter(o => +o.e < now).sort((a, b) => b.s - a.s);
+  const cards = [];
+  for(const x of CD.list()){
+    const p = PJ.mem.get(x.projectId); if(!p || p.deleted) continue;
+    if(hit(x.title, x.notes, p.name)) cards.push({x, p});
+  }
+  cards.sort((a, b) => (isDone(a.p, a.x) - isDone(b.p, b.x)) || ((a.x.due || '9') < (b.x.due || '9') ? -1 : 1));
+  const lists = [];
+  for(const x of LI.list()){
+    const sec = SECTIONS[x.section]; if(!sec) continue;
+    const cat = (sec.cats.find(c => c[0] === x.cat) || [0, ''])[1];
+    if(hit(x.title, x.author, x.desc, sec.name, cat)) lists.push({x, sec, cat});
+  }
+  lists.sort((a, b) => (!!a.x.done - !!b.x.done) || (b.x.createdAt || 0) - (a.x.createdAt || 0));
+  return {terms, events: up.concat(past).slice(0, 40), cards: cards.slice(0, 20), lists: lists.slice(0, 20)};
+}
+function renderSearch(){
+  const q = Q.value.trim();
+  SRS.rows = []; SRS.sel = -1;
+  if(!q){ SR.classList.remove('open'); SR.innerHTML = ''; return; }
+  const r = searchRun(q), T = r.terms;
+  SR.innerHTML = '';
+  const add = (c, title, meta, pick) => {
+    const row = el('div', 'sr', `<span class="sbar"></span><span class="stext"><div class="stitle">${hilite(title, T)}</div><div class="smeta">${meta}</div></span>`);
+    row.style.setProperty('--c', c); row.setAttribute('role', 'option');
+    row.addEventListener('mousedown', e => e.preventDefault());       // keep focus in the field
+    row.onclick = () => { closeSearch(); pick(); };
+    row.onmousemove = () => { const i = SRS.rows.indexOf(row); if(i !== SRS.sel){ SRS.sel = i; markSel(); } };
+    SR.append(row); SRS.rows.push(row);
+  };
+  if(r.events.length){
+    SR.append(el('h4', '', 'Events'));
+    r.events.forEach(o => {
+      const f = o.ev.feed && FEEDS.find(x => x.key === o.ev.feed);
+      const meta = [whenText(o), o.ev.location, f ? f.name : '', o.rec ? 'repeats' : ''].filter(Boolean).map(x => hilite(x, T)).join(' · ');
+      add(catOf(o.ev.cat).c, o.ev.title || '(No title)', meta, () => showOccurrence(o));
+    });
+  }
+  if(r.cards.length){
+    SR.append(el('h4', '', 'Planner'));
+    r.cards.forEach(({x, p}) => {
+      const col = p.columns.find(c => c.id === x.col);
+      const meta = [hilite(p.name, T), col ? esc(col.name) : '', x.due ? 'due ' + esc(fmtDay(parseKey(x.due))) : ''].filter(Boolean).join(' · ');
+      add('#616161', x.title || '(No title)', meta, () => openCard(x));
+    });
+  }
+  if(r.lists.length){
+    SR.append(el('h4', '', 'Lists'));
+    r.lists.forEach(({x, sec, cat}) => {
+      const meta = [esc(sec.name) + ': ' + esc(cat), x.author ? hilite(x.author, T) : '', sec.tick && x.done ? esc(sec.doneLabel || 'Done') : ''].filter(Boolean).join(' · ');
+      add(catColor(x.section, x.cat), x.title || '(No title)', meta, () => { setMode(x.section); openListItem(x); });
+    });
+  }
+  if(!SRS.rows.length) SR.append(el('div', 'snone', 'Nothing found for "' + esc(q) + '"'));
+  else { SRS.sel = 0; markSel(); }
+  SR.scrollTop = 0; SR.classList.add('open');
+}
+function markSel(){ SRS.rows.forEach((r, i) => r.classList.toggle('on', i === SRS.sel)); const r = SRS.rows[SRS.sel]; if(r) r.scrollIntoView({block:'nearest'}); }
+function showOccurrence(o){
+  if(S.mode !== 'calendar'){ S.mode = 'calendar'; LS.set('mode', 'calendar'); }
+  S.date = sod(o.s); S.miniMonth = null;
+  if(!o.allDay) S.scrollTop = Math.max(0, (o.s.getHours() - 1) * HOUR);
+  render(); openAny(o);
+}
+function openSearch(){ document.body.classList.add('searching'); Q.focus(); if(Q.value.trim()) renderSearch(); }
+function closeSearch(){ Q.value = ''; SR.classList.remove('open'); SR.innerHTML = ''; document.body.classList.remove('searching'); Q.blur(); }
+Q.addEventListener('input', () => { clearTimeout(SRS.t); SRS.t = setTimeout(renderSearch, 90); });
+Q.addEventListener('focus', () => { if(Q.value.trim()) renderSearch(); });
+Q.addEventListener('keydown', e => {
+  if(e.isComposing) return;
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+    e.preventDefault(); if(!SRS.rows.length) return;
+    SRS.sel = (SRS.sel + (e.key === 'ArrowDown' ? 1 : -1) + SRS.rows.length) % SRS.rows.length; markSel();
+  } else if(e.key === 'Enter'){
+    e.preventDefault(); clearTimeout(SRS.t);
+    if(!SR.classList.contains('open')) renderSearch();
+    const r = SRS.rows[SRS.sel]; if(r) r.click();
+  } else if(e.key === 'Escape'){
+    e.preventDefault(); e.stopPropagation(); closeSearch();
+  }
+});
+$('#btnSearch').onclick = e => { e.stopPropagation(); openSearch(); };
+$('#qClose').onclick = closeSearch;
+document.addEventListener('pointerdown', e => {
+  if(!SR.classList.contains('open') && !document.body.classList.contains('searching')) return;
+  if(SR.contains(e.target) || $('#search').contains(e.target) || e.target.closest('#btnSearch')) return;
+  SR.classList.remove('open');
+  if(!Q.value.trim()) document.body.classList.remove('searching');
+});
+
 /* ---------- import / export ---------- */
 function icsEsc(s){ return String(s || '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
 function icsUnesc(s){ return String(s || '').replace(/\\n/gi, '\n').replace(/\\([,;\\])/g, '$1'); }
@@ -1841,8 +2333,11 @@ menu.addEventListener('click', e => {
   if(a === 'weekstart'){ S.weekStart = S.weekStart === 1 ? 0 : 1; LS.set('weekStart', S.weekStart); render(); }
 });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ if(chooserClose) chooserClose(null); else if($('#syncDlg').classList.contains('open')) closeSync(); else if(LE) closeListItem(); else if(CE) closeCard(); else if(ED) closeEditor(); menu.classList.remove('open'); $('#pop').classList.remove('open'); document.body.classList.remove('side-open'); return; }
-  if(ED || CE || LE || chooserClose || $('#syncDlg').classList.contains('open') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+  if(e.key === 'Escape'){ if(SR.classList.contains('open') || document.body.classList.contains('searching')){ closeSearch(); return; } if(chooserClose) chooserClose(null); else if($('#syncDlg').classList.contains('open')) closeSync(); else if(LE) closeListItem(); else if(CE) closeCard(); else if(ED) closeEditor(); menu.classList.remove('open'); $('#pop').classList.remove('open'); document.body.classList.remove('side-open'); return; }
+  if(ED || CE || LE || chooserClose || $('#syncDlg').classList.contains('open') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable) return;
+  if((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === 'k'){ e.preventDefault(); openSearch(); return; }
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  if(e.key === '/'){ e.preventDefault(); openSearch(); return; }
   const k = e.key.toLowerCase();
   if(k === 'c' && S.mode !== 'calendar'){ setMode('calendar'); return; }
   if(k === 'p' && S.mode !== 'planner'){ setMode('planner'); return; }
@@ -1850,7 +2345,7 @@ document.addEventListener('keydown', e => {
   if(isListMode(S.mode)){ if(k === 'n') openListItem(null); return; }
   if(k === 't') nav(0); else if(k === 'n') openEditor(null);
   else if(e.key === 'ArrowLeft') nav(-1); else if(e.key === 'ArrowRight') nav(1);
-  else if(k === 'd') setView('day'); else if(k === 'w') setView('week'); else if(k === 'm') setView('month');
+  else if(k === 'd') setView('day'); else if(k === 'w') setView('week'); else if(k === 'm') setView('month'); else if(k === 'a') setView('agenda');
 });
 (() => {     // swipe left/right to change dates on touch screens
   const c = $('#content'); let sx = 0, sy = 0, st = 0;
@@ -1929,22 +2424,40 @@ const Sync = {
     try{
       try{ const tz = Intl.DateTimeFormat().resolvedOptions().timeZone; const r = ST.mem.get('tz'); if(tz && (!r || r.value !== tz)) ST.write(Object.assign({id:'tz', value:tz}, {updatedAt: Date.now(), _lt: Date.now()})); }catch(e){}   // lets the Claude connector read times in your zone
       const started = Date.now(), lastPush = LS.get('sync.lastPush', -1), since = LS.get('sync.seq', 0);
-      const changes = [];
+      const changes = [], pushed = new Map();
       for(const [kind, st] of Object.entries(STORES)){
         for(const x of st.mem.values()){
-          if((x._lt || 0) > lastPush){ const data = Object.assign({}, x); delete data._lt; changes.push({kind, id: x.id, updatedAt: x.updatedAt || 0, data}); }
+          if((x._lt || 0) <= lastPush) continue;
+          const data = Object.assign({}, x); delete data._lt;
+          const c = {kind, id: x.id, updatedAt: x.updatedAt || 0, data}, base = Shadow.get(kind, x.id);
+          if(base){                       // send which fields changed here, and what they were, so the server can merge
+            const fields = changedFields(data, base);
+            if(!fields.length) continue;
+            c.base = {updatedAt: base.updatedAt || 0, fields, vals: baseVals(base, fields)};
+          }
+          changes.push(c); pushed.set(kind + '\n' + x.id, c);
         }
       }
       const r = await api('/api/sync', {since, changes});
-      if(r.seq < since){ LS.set('sync.seq', 0); LS.set('sync.lastPush', -1); this.again = true; return; }   // server was reset: start over
-      let applied = 0;
+      if(r.seq < since){ LS.set('sync.seq', 0); LS.set('sync.lastPush', -1); Shadow.clear(); this.again = true; return; }   // server was reset: start over
+      let applied = 0; const got = new Set(), conflicts = (r.conflicts || []).slice();
       for(const c of r.changes || []){
         const st = STORES[c.kind];
         if(!st || !c.data || c.data.id !== c.id) continue;
-        const ex = st.mem.get(c.id);
-        if(ex && ((ex._lt || 0) > started || (ex.updatedAt || 0) > c.updatedAt)) continue;   // our own newer edit wins
-        const d = c.data; delete d._lt; st.write(d); applied++;
+        got.add(c.kind + '\n' + c.id);
+        const srv = Object.assign({}, c.data); delete srv._lt;
+        const ex = st.mem.get(c.id), base = Shadow.get(c.kind, c.id);
+        if(ex && (ex._lt || 0) > started){          // edited here while this sync was under way: merge, keep it pending
+          if(base){
+            const fields = changedFields(ex, base), m = merge3(srv, ex, fields, baseVals(base, fields), true);
+            st.write(Object.assign(m.data, {updatedAt: ex.updatedAt, _lt: ex._lt})); applied++;
+            if(m.conflicts.length) conflicts.push({kind: c.kind, id: c.id, title: String(srv.title || srv.name || '').slice(0, 120), fields: m.conflicts});
+          }
+        } else { st.write(srv); applied++; }
+        Shadow.set(c.kind, srv);
       }
+      for(const [k, c] of pushed) if(!got.has(k)) Shadow.set(c.kind, c.data);   // the server took it as sent
+      if(conflicts.length) Conflicts.add(conflicts);
       LS.set('sync.lastPush', started); LS.set('sync.seq', r.seq); LS.set('sync.last', Date.now());
       if(applied){ applyCatNames(); fillCatSelect(); if(!Drag.on) render(); }
       await Reminders.upload();
@@ -1954,12 +2467,147 @@ const Sync = {
     finally{ this.busy = false; if(this.again){ this.again = false; this.schedule(); } }
   },
   start(){
+    if(this.cfg && !LS.get('sync.shadow', false)){    // first start of this version: what is already synced becomes the base
+      const lp = LS.get('sync.lastPush', -1);
+      for(const [kind, st] of Object.entries(STORES)) for(const x of st.mem.values()) if((x._lt || 0) <= lp) Shadow.set(kind, x);
+      LS.set('sync.shadow', true);
+    }
     addEventListener('online', () => this.run());
     addEventListener('offline', () => { if(this.cfg) this.setState('offline'); });
     document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') this.run(); });
     setInterval(() => { if(document.visibilityState === 'visible') this.run(); }, 60000);
     this.run();
   }
+};
+
+
+/* field-level merge (the sync server runs the same code) */
+function stableJSON(v){ return JSON.stringify(v, (k, x) => (x && typeof x === 'object' && !Array.isArray(x)) ? Object.keys(x).sort().reduce((o, key) => { o[key] = x[key]; return o; }, {}) : x); }
+function sameVal(a, b){ return stableJSON(a) === stableJSON(b); }
+function changedFields(cur, base){
+  const ks = new Set([...Object.keys(cur || {}), ...Object.keys(base || {})]);
+  return [...ks].filter(k => k !== '_lt' && k !== 'updatedAt' && !sameVal(cur[k], base[k]));
+}
+function baseVals(base, fields){ const v = {}; fields.forEach(f => { if(Object.prototype.hasOwnProperty.call(base, f)) v[f] = base[f]; }); return v; }
+function merge3(theirs, mine, fields, vals, mineWins){
+  const out = Object.assign({}, theirs), conflicts = [];
+  const had = f => Object.prototype.hasOwnProperty.call(vals || {}, f);
+  const put = (f, v) => { if(v === undefined) delete out[f]; else out[f] = v; };
+  for(const f of fields){
+    if(f === 'updatedAt' || f === '_lt') continue;
+    const b = had(f) ? vals[f] : undefined, m = mine[f], t = theirs[f];
+    if(sameVal(t, b) || sameVal(t, m)){ put(f, m); continue; }
+    if(f === 'exdates' && (Array.isArray(m) || Array.isArray(t))){
+      const bs = new Set(Array.isArray(b) ? b : []), ms = Array.isArray(m) ? m : [], ts = Array.isArray(t) ? t : [];
+      const removed = new Set([...bs].filter(x => !ms.includes(x)));
+      out[f] = [...new Set([...ts, ...ms.filter(x => !bs.has(x))])].filter(x => !removed.has(x));
+      continue;
+    }
+    if(mineWins){ put(f, m); conflicts.push({field: f, kept: m, lost: t}); } else conflicts.push({field: f, kept: t, lost: m});
+  }
+  if(out.deleted && !(theirs.deleted && mine.deleted)){
+    const editedElsewhere = mine.deleted ? true : fields.some(f => f !== 'deleted' && f !== 'updatedAt');
+    if(editedElsewhere){ out.deleted = false; conflicts.push({field: 'deleted', kept: false, lost: true}); }
+  }
+  return {data: out, conflicts};
+}
+const FIELD_NAMES = {title:'Title', name:'Name', location:'Location', notes:'Description', desc:'Description', start:'Start', end:'End', sd:'Start date', ed:'End date',
+  allDay:'All day', cat:'Calendar', repeat:'Repeat', exdates:'Skipped dates', reminder:'Reminder', remind:'Reminder', col:'Status', projectId:'Project', due:'Due date',
+  priority:'Priority', order:'Position', done:'Ticked', author:'Author', columns:'Columns', value:'Setting', deleted:'Deleted'};
+const KIND_NAMES = {events:'Event', cards:'Planner item', projects:'Project', lists:'List item', settings:'Setting'};
+function fieldText(f, v){
+  if(v === null || v === undefined || v === '') return '(empty)';
+  if((f === 'start' || f === 'end') && typeof v === 'number') return new Date(v).toLocaleString([], {weekday:'short', day:'numeric', month:'short', hour:'numeric', minute:'2-digit'});
+  if(typeof v === 'boolean') return v ? 'yes' : 'no';
+  if(f === 'cat') return catOf(v).name;
+  if(f === 'repeat' && typeof v === 'object') return v.freq === 'none' ? "doesn't repeat" : v.freq + (v.until ? ' until ' + v.until : '');
+  if(Array.isArray(v)) return v.map(x => typeof x === 'object' ? (x.name || stableJSON(x)) : x).join(', ');
+  if(typeof v === 'object') return stableJSON(v);
+  return String(v);
+}
+const Conflicts = {
+  list(){ return LS.get('sync.conflicts', []) || []; },
+  add(arr){
+    const at = Date.now();
+    const cut = v => typeof v === 'string' && v.length > 400 ? v.slice(0, 400) + '...' : v;
+    arr = arr.map(c => Object.assign({at}, c, {fields: (c.fields || []).map(x => ({field: x.field, kept: cut(x.kept), lost: cut(x.lost)}))}));
+    LS.set('sync.conflicts', arr.concat(this.list()).slice(0, 30));
+    const t = arr[0].title;
+    toast(arr.length === 1 ? `"${t || 'An item'}" was changed on two devices. Both edits were merged.` : `${arr.length} items were changed on two devices. The edits were merged.`, {label:'Details', fn: openSync});
+  }
+};
+function renderConflicts(){
+  const l = Conflicts.list(), box = $('#conflicts');
+  $('#conflictSec').classList.toggle('hidden', !l.length); box.innerHTML = '';
+  l.forEach(c => {
+    const d = el('div', 'cfl');
+    let fs = c.fields || [];
+    if(fs.some(x => x.field === 'start' || x.field === 'end')) fs = fs.filter(x => x.field !== 'sd' && x.field !== 'ed');
+    d.innerHTML = `<div class="ct">${esc(c.title || '(No title)')}</div><div class="cw">${esc(KIND_NAMES[c.kind] || 'Record')} · ${esc(new Date(c.at).toLocaleString([], {weekday:'short', day:'numeric', month:'short', hour:'numeric', minute:'2-digit'}))}</div>`
+      + fs.map(x => x.field === 'deleted'
+          ? '<div class="cv">Deleted on one device and edited on the other, so it was kept.</div>'
+          : `<div class="cv"><b>${esc(FIELD_NAMES[x.field] || x.field)}</b>: kept ${esc(fieldText(x.field, x.kept))} <span>· other version: ${esc(fieldText(x.field, x.lost))}</span></div>`).join('');
+    const rec = c.kind === 'events' ? DB.mem.get(c.id) : c.kind === 'cards' ? CD.mem.get(c.id) : c.kind === 'lists' ? LI.mem.get(c.id) : null;
+    if(rec && !rec.deleted){ d.style.cursor = 'pointer'; d.title = 'Open'; d.onclick = () => { closeSync(); c.kind === 'events' ? openEditor(rec) : c.kind === 'cards' ? openCard(rec) : openListItem(rec); }; }
+    box.append(d);
+  });
+}
+$('#conflictClear').onclick = () => { LS.set('sync.conflicts', []); renderConflicts(); };
+
+/* nightly server backups */
+async function loadBackups(){
+  const sec = $('#backupSec'), box = $('#backups'), st = $('#backupStatus');
+  if(!Sync.cfg){ sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden'); st.textContent = ''; st.classList.remove('bad');
+  box.innerHTML = '<div class="hint">Loading...</div>';
+  try{ const r = await api('/api/backups'); renderBackups(r.backups || []); }
+  catch(e){
+    box.innerHTML = '';
+    st.textContent = /Unknown request/.test(e.message) ? 'The sync server needs updating for backups. It updates by itself when this version is pushed to GitHub (see SETUP-SYNC.md).' : e.message;
+    st.classList.add('bad');
+  }
+}
+function renderBackups(list){
+  const box = $('#backups'); box.innerHTML = '';
+  if(!list.length){ box.innerHTML = '<div class="hint">No backups yet. The first one is made tonight, or use Back up now.</div>'; return; }
+  const KIND = {nightly:'nightly', manual:'manual', safety:'before a large deletion'};
+  list.forEach(b => {
+    const when = new Date(b.createdAt).toLocaleString([], {weekday:'short', day:'numeric', month:'short', year: new Date(b.createdAt).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined, hour:'numeric', minute:'2-digit'});
+    const r = el('div', 'bk', `<div class="bw"><div>${esc(when)}</div><div class="bm">${b.records} records · ${esc(KIND[b.kind] || b.kind)} · ${Math.max(1, Math.round((b.bytes || 0)/1024))} KB</div></div>`);
+    const dl = el('button', 'btn', 'Download'), rs = el('button', 'btn', 'Restore');
+    dl.onclick = async () => {
+      const st = $('#backupStatus'); st.classList.remove('bad'); st.textContent = 'Downloading...';
+      try{ const x = await api('/api/backup', {id: b.id}); await saveFile('alcal-server-backup-' + dkey(b.createdAt) + '.json', JSON.stringify(x.data, null, 1), 'application/json'); st.textContent = ''; }
+      catch(e){ st.textContent = e.message; st.classList.add('bad'); }
+    };
+    rs.onclick = () => restoreBackup(b.id, when);
+    r.append(dl, rs); box.append(r);
+  });
+}
+async function restoreBackup(id, when){
+  const ok = await choose('Restore this backup?', `Everything that was in the backup from ${esc(when)} goes back to how it was then, on all your devices. Things created after it are kept.`, [['yes', 'Restore']]);
+  if(!ok) return;
+  const st = $('#backupStatus'); st.classList.remove('bad'); st.textContent = 'Restoring...';
+  try{
+    const b = await api('/api/backup', {id}); let n = 0;
+    for(const [kind, store] of Object.entries(STORES)){
+      for(const rec of (b.data && b.data[kind]) || []){
+        if(!rec || typeof rec.id !== 'string') continue;
+        const cur = store.mem.get(rec.id);
+        if(cur && !changedFields(rec, cur).length) continue;
+        const d = Object.assign({}, rec); delete d._lt;
+        store.put(d); n++;             // fresh timestamp, so the restored version wins everywhere
+      }
+    }
+    applyCatNames(); fillCatSelect(); render();
+    await Sync.run();
+    st.textContent = n ? `Restored ${n} record${n === 1 ? '' : 's'}.` : 'Nothing to restore: your data already matches this backup.';
+  }catch(e){ st.textContent = 'Could not restore: ' + e.message; st.classList.add('bad'); }
+}
+$('#backupNow').onclick = async () => {
+  const st = $('#backupStatus'); st.classList.remove('bad'); st.textContent = 'Saving...';
+  try{ await Sync.run(); await api('/api/backups/now', {}); await loadBackups(); $('#backupStatus').textContent = 'Backup saved on the server.'; }
+  catch(e){ st.textContent = e.message; st.classList.add('bad'); }
 };
 
 const Reminders = {
@@ -2053,8 +2701,9 @@ function openSync(){
   const v = LS.get('defaultReminder', 15); dr.value = v == null ? '' : String(v);
   $('#pushStatus').textContent = '';
   renderSyncStatus();
+  renderConflicts();
   $('#syncDlg').classList.add('open');
-  loadConnector();
+  loadConnector(); loadBackups();
 }
 async function loadConnector(){
   const sec = $('#mcpSec');
@@ -2079,7 +2728,8 @@ $('#syConnect').onclick = async () => {
   try{
     const r = await api('/api/ping', null, {url, key});
     LS.set('sync', {url, key}); LS.set('sync.seq', 0); LS.set('sync.lastPush', -1); LS.set('sync.remHash', '');
-    await Sync.run(); loadConnector();
+    Shadow.clear(); LS.set('sync.shadow', true);
+    await Sync.run(); loadConnector(); loadBackups(); Remote.refreshAll(true);
     toast(r.records ? 'Connected. Merged with ' + r.records + ' records from the server.' : 'Connected. Your data is now on the server.');
   }catch(e){ st.textContent = 'Could not connect: ' + e.message; st.classList.add('bad'); }
 };
@@ -2088,7 +2738,8 @@ $('#syOff').onclick = async () => {
   const ok = await choose('Disconnect this device?', 'Your events stay on this device but no longer sync. Notifications on this device stop.', [['yes', 'Disconnect']]);
   if(!ok) return;
   await Push.disable();
-  LS.set('sync', null); Sync.setState('off'); $('#mcpSec').classList.add('hidden');
+  LS.set('sync', null); Sync.setState('off'); $('#mcpSec').classList.add('hidden'); $('#backupSec').classList.add('hidden');
+  Shadow.clear(); LS.set('sync.shadow', false);
 };
 $('#pushOn').onclick = async () => {
   const ps = $('#pushStatus'); ps.classList.remove('bad');
@@ -2118,6 +2769,9 @@ $('#pushTest').onclick = async () => {
     try{ navigator.serviceWorker.register('sw.js').catch(() => {}); }catch(e){}
   }
   Sync.start();
+  Remote.refreshAll();
+  setInterval(() => Remote.refreshAll(), 30*6e4);
+  addEventListener('online', () => Remote.refreshAll());
 })();
 </script>
 <script src="quotes.js"></script>

@@ -64,12 +64,40 @@ default in the panel). Planner items can remind you on, or a day or a week befor
 
 - Changes sync a second or two after you make them, whenever a device is online, and every minute
   while AlCal is open. Offline changes sync when the connection returns.
-- If the same thing is edited on two devices before they sync, the later edit wins.
+- If the same thing is edited on two devices before they sync, the edits are merged field by field: change
+  the title on the laptop and the location on the iPhone, and both changes survive. Only when both devices
+  changed the same field does the later edit win; AlCal then shows a notice, and **Sync & reminders >
+  Merged edits** lists the overwritten version so you can copy it back. If one device deleted something the
+  other edited, it is kept. Skipped occurrences of a repeating event are combined from both devices.
 - Reminders are scheduled up to 45 days ahead and refreshed every time a device syncs, so a
   repeating event keeps reminding you as long as you open AlCal on any device now and then.
 - The server stores your data and the titles of upcoming reminders (they are the notification text).
   It is reachable only with your sync key. To change the key: update the `ALCAL_SYNC_KEY` secret,
   run the workflow again, and reconnect each device with the new key.
+
+## Backups
+
+The server saves a snapshot of all your data every night after 03:00 (in the time zone of the device that
+synced last) and keeps the last 14. Nights without changes are skipped, so the 14 snapshots reach further
+back. It also keeps the last 5 snapshots you make with **Back up now**, and saves one automatically before
+any sync that deletes 25 or more things at once.
+
+In **Sync & reminders > Backups** you can download any snapshot as a .json file (it imports through
+**...** > **Import**) or restore it. Restoring brings every record in the snapshot back to how it was then,
+on all devices; anything created after the snapshot is kept.
+
+## Subscribed calendars
+
+The sidebar lists four read-only calendars under **Subscribed**. Tick or untick them per device.
+
+- **Jewish holidays** (diaspora dates), **Zurich holidays** (cantonal public holidays plus the Sechseläuten
+  and Knabenschiessen afternoons) and **Full moon** are calculated on the device and work offline.
+- **Tottenham Hotspur** fixtures come from FotMob's public calendar feed
+  (`https://pub.fotmob.com/prod/pub/api/v2/calendar/team/8586.ics`). Browsers block such downloads, so the
+  sync server fetches the feed; it needs a connected sync server. The fixtures are refreshed every few hours
+  and kept for offline use. To use another feed, change the address in `FEEDS` in `index.html`.
+
+Click an entry to see its details, or to copy it into your own calendar (for example to add a reminder).
 
 ## Claude as your secretary (optional)
 
