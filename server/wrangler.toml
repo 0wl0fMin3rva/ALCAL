@@ -1,0 +1,16 @@
+name = "alcal-sync"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[[durable_objects.bindings]]
+name = "STORE"
+class_name = "AlcalStore"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AlcalStore"]
+
+# Safety net every 15 minutes; reminders are normally sent on time by a Durable Object alarm.
+[triggers]
+crons = ["*/15 * * * *"]

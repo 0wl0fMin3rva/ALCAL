@@ -244,6 +244,23 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
 .pop button:hover{background:var(--line-soft)}
 .pop button.danger,.menu button.danger{color:var(--now)}
 
+/* Sync */
+#btnSync{color:#fff;position:relative}
+#btnSync[data-state=off]{opacity:.45}
+#btnSync[data-state=offline]{opacity:.6}
+#btnSync[data-state=busy] svg{animation:syncpulse 1s ease-in-out infinite}
+#btnSync::after{content:"";position:absolute;right:6px;bottom:8px;width:7px;height:7px;border-radius:50%;display:none}
+#btnSync[data-state=err]::after{display:block;background:#ff5c5c}
+@keyframes syncpulse{50%{opacity:.3}}
+.dh{margin:0;font-size:18px;font-weight:800;letter-spacing:-.028em}
+.sh{font-size:15px;margin:0 0 6px;font-weight:800;letter-spacing:-.028em}
+.hint{color:var(--text2);margin:0 0 12px;line-height:1.45;font-size:13.5px}
+.fl{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:13px;color:var(--text2)}
+.fl input,.fl select{color:var(--text)}
+.status{font-size:13.5px;margin-top:10px;color:var(--text2);min-height:1em;line-height:1.4}
+.status.bad{color:var(--now)}
+#syncDlg section+section{border-top:1px solid var(--line);padding-top:16px}
+
 /* Phone */
 @media (max-width:760px){
   :root{--gutter:46px}
@@ -265,8 +282,8 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
   .cmdbar .btn{padding:0 10px}
   .range{font-size:15px}
   select,input,textarea{font-size:16px}
-  #editor,#cardEd{padding:0;align-items:stretch}
-  #editor .dialog,#cardEd .dialog{width:100%;max-height:none;height:100%;border-radius:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  #editor,#cardEd,#syncDlg{padding:0;align-items:stretch}
+  #editor .dialog,#cardEd .dialog,#syncDlg .dialog{width:100%;max-height:none;height:100%;border-radius:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
   .dlg-body{padding:14px 16px}
   .dayhead{padding:4px;flex-direction:column;align-items:center;gap:0}
   .dayhead .num{font-size:17px}
@@ -288,6 +305,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
   <nav class="apptabs"><button class="apptab" data-mode="calendar">Calendar</button><button class="apptab" data-mode="planner">Planner</button></nav>
   <span class="spacer"></span>
   <span class="pill" id="offline">Offline</span>
+  <button class="iconbtn" id="btnSync" data-state="off" aria-label="Sync and reminders" title="Sync is off"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/></svg></button>
 </header>
 <div class="cmdbar">
   <button class="btn primary cal-only" id="btnNew"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New event</button>
@@ -327,6 +345,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
   <button data-act="ics"><svg viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M5 20h14"/></svg>Export calendar (.ics)</button>
   <button data-act="backup"><svg viewBox="0 0 24 24"><path d="M6 4h9l3 3v13H6z M9 4v5h6"/></svg>Back up all data (.json)</button>
   <hr>
+  <button data-act="sync"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/></svg>Sync &amp; reminders</button>
   <button data-act="weekstart"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span id="wsLabel"></span></button>
 </div>
 
@@ -353,6 +372,10 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
         <svg viewBox="0 0 24 24"><path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/></svg>
         <select id="fRep"></select>
         <span id="untilWrap" class="dt">until <input type="date" id="fUntil"></span>
+      </div>
+      <div class="frow">
+        <svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg>
+        <select id="fRem" aria-label="Reminder"></select>
       </div>
       <div class="frow">
         <svg viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/></svg>
@@ -384,11 +407,36 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
       <div class="frow"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg><select id="cProj"></select><select id="cStatus"></select></div>
       <div class="frow"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><input type="date" id="cDue"><span style="color:var(--text2)">due date (shows in the calendar)</span></div>
       <div class="frow"><svg viewBox="0 0 24 24"><path d="M5 21V4h11l-2 4 2 4H5"/></svg><select id="cPri"><option value="none">No priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+      <div class="frow"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><select id="cRem" aria-label="Reminder"><option value="">No reminder</option><option value="0">On the due date, 9:00</option><option value="1440">The day before, 9:00</option><option value="10080">A week before, 9:00</option></select></div>
       <div class="frow top"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 10h14M5 14h14M5 18h9"/></svg><textarea id="cNotes" class="grow" rows="7" placeholder="Add a description"></textarea></div>
     </div>
   </div>
 </div>
 <div class="pop" id="pop"></div>
+
+<div class="overlay" id="syncDlg">
+  <div class="dialog" role="dialog" aria-label="Sync and reminders">
+    <div class="dlg-head"><h2 class="dh">Sync &amp; reminders</h2><span class="spacer"></span>
+      <button class="iconbtn" id="syClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="dlg-body">
+      <section>
+        <h3 class="sh">Sync between devices</h3>
+        <p class="hint">Enter your AlCal server address and sync key. Use the same two on every device.</p>
+        <label class="fl">Server address<input id="syUrl" placeholder="https://alcal-sync.yourname.workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"></label>
+        <label class="fl">Sync key<input id="syKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <div class="frow"><button class="btn primary" id="syConnect">Connect</button><button class="btn" id="syNow">Sync now</button><span class="spacer"></span><button class="btn danger" id="syOff">Disconnect</button></div>
+        <div class="status" id="syStatus"></div>
+      </section>
+      <section>
+        <h3 class="sh">Reminders</h3>
+        <p class="hint" id="pushHint"></p>
+        <div class="frow"><button class="btn primary" id="pushOn"></button><button class="btn" id="pushTest">Send a test</button></div>
+        <div class="status" id="pushStatus"></div>
+        <label class="fl" style="margin-top:14px">Default reminder for new events<select id="defRem"></select></label>
+      </section>
+    </div>
+  </div>
+</div>
 
 <div class="overlay" id="chooser">
   <div class="dialog small" role="dialog"><h2></h2><div class="msg"></div><div class="opts"></div></div>
@@ -435,10 +483,10 @@ const CATS = [
 ];
 function catOf(id){ return CATS.find(c => c.id === id) || CATS[0]; }
 const ICON_PEN = '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>';
-function applyCatNames(){ const n = LS.get('catNames', {}) || {}; CATS.forEach(c => { if(typeof n[c.id] === 'string' && n[c.id].trim()) c.name = n[c.id]; }); }
+function applyCatNames(){ let n = null; try{ const r = ST.mem.get('catNames'); n = r && r.value; }catch(e){} n = n || LS.get('catNames', {}) || {}; CATS.forEach(c => { if(typeof n[c.id] === 'string' && n[c.id].trim()) c.name = n[c.id]; }); }
 function fillCatSelect(){ const s = document.getElementById('fCat'); if(!s) return; const v = s.value; s.innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(''); if(v) s.value = v; }
 function renameCat(c, span){
-  inlineEdit(span, v => { v = v.slice(0, 40); c.name = v; const n = LS.get('catNames', {}) || {}; n[c.id] = v; LS.set('catNames', n); fillCatSelect(); render(); });
+  inlineEdit(span, v => { v = v.slice(0, 40); c.name = v; const n = LS.get('catNames', {}) || {}; n[c.id] = v; LS.set('catNames', n); ST.put({id:'catNames', value:n}); fillCatSelect(); render(); });
 }
 applyCatNames();
 
@@ -447,21 +495,21 @@ class Store {
   constructor(name){ this.name = name; this.mem = new Map(); }
   load(db){ return new Promise((res, rej) => { const q = db.transaction(this.name).objectStore(this.name).getAll(); q.onsuccess = () => { q.result.forEach(x => this.mem.set(x.id, x)); res(); }; q.onerror = () => rej(q.error); }); }
   write(x){ this.mem.set(x.id, x); if(IDB.db){ try{ IDB.db.transaction(this.name, 'readwrite').objectStore(this.name).put(x); }catch(e){} } }
-  put(x){ x.updatedAt = Date.now(); this.write(x); }
+  put(x){ x.updatedAt = Date.now(); x._lt = Date.now(); this.write(x); try{ Sync.schedule(); }catch(e){} }
   remove(id){ const x = this.mem.get(id); if(x){ x.deleted = true; this.put(x); } }   // soft delete, ready for sync
   list(){ return [...this.mem.values()].filter(x => !x.deleted); }
 }
-const DB = new Store('events'), PJ = new Store('projects'), CD = new Store('cards');
+const DB = new Store('events'), PJ = new Store('projects'), CD = new Store('cards'), ST = new Store('settings');
 const IDB = {
   db:null,
   async open(){
     try{
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('personal-calendar', 2);
-        r.onupgradeneeded = () => { const d = r.result; ['events','projects','cards'].forEach(n => { if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:'id'}); }); };
+        const r = indexedDB.open('personal-calendar', 3);
+        r.onupgradeneeded = () => { const d = r.result; ['events','projects','cards','settings'].forEach(n => { if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:'id'}); }); };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
-      for(const st of [DB, PJ, CD]) await st.load(this.db);
+      for(const st of [DB, PJ, CD, ST]) await st.load(this.db);
     }catch(e){ this.db = null; setTimeout(() => toast('Storage is unavailable here, so your data will not be kept'), 300); }
   }
 };
@@ -496,10 +544,10 @@ function nth(b, f, n){
   return null;
 }
 function mk(ev, s, e, rec){ return {ev, s, e, allDay:ev.allDay, rec:!!rec, key:dkey(s)}; }
-function occurrences(rs, re){
+function occurrences(rs, re, all){
   const out = [];
   for(const ev of DB.list()){
-    if(S.hidden.has(ev.cat)) continue;
+    if(!all && S.hidden.has(ev.cat)) continue;
     const [s, e] = baseRange(ev); const dur = e - s;
     const r = ev.repeat || {}; const f = r.freq || 'none';
     if(f === 'none'){ if(s < re && e > rs) out.push(mk(ev, s, e)); continue; }
@@ -888,7 +936,7 @@ function bindMonthChip(x, o){
 }
 
 /* ---------- editor ---------- */
-const F = {title:$('#fTitle'), sd:$('#fSd'), st:$('#fSt'), ed:$('#fEd'), et:$('#fEt'), all:$('#fAll'), rep:$('#fRep'), until:$('#fUntil'), cat:$('#fCat'), loc:$('#fLoc'), notes:$('#fNotes')};
+const F = {title:$('#fTitle'), sd:$('#fSd'), st:$('#fSt'), ed:$('#fEd'), et:$('#fEt'), all:$('#fAll'), rep:$('#fRep'), until:$('#fUntil'), cat:$('#fCat'), loc:$('#fLoc'), notes:$('#fNotes'), rem:$('#fRem')};
 fillCatSelect();
 let ED = null, prevStart = null;
 function defaultStart(day){
@@ -925,12 +973,14 @@ function openEditor(ev, opt){
     d = clone(ev); Object.assign(d, {id: uid(), repeat:{freq:'none'}, exdates:[], createdAt: Date.now(), start: +occ.s, end: +occ.e});
     if(d.allDay){ d.sd = dkey(occ.s); d.ed = dkey(addDays(occ.e, -1)); }
   } else d = clone(ev);
+  if(!ev && !occ) d.reminder = d.allDay ? null : LS.get('defaultReminder', 15);
   ED = {d, isNew: !ev, occ, orig: ev, onClose: opt.onClose};
   F.title.value = d.title || '';
   F.all.checked = !!d.allDay;
   if(d.allDay){ F.sd.value = d.sd; F.ed.value = d.ed; F.st.value = '09:00'; F.et.value = '09:30'; }
   else { F.sd.value = dkey(d.start); F.st.value = hm(d.start); F.ed.value = dkey(d.end); F.et.value = hm(d.end); }
   repOptions(F.sd.value, (d.repeat && d.repeat.freq) || 'none');
+  fillRem(!!d.allDay, d.reminder);
   F.until.value = (d.repeat && d.repeat.until) || '';
   F.cat.value = catOf(d.cat).id; F.loc.value = d.location || ''; F.notes.value = d.notes || '';
   $('#edKind').textContent = !ev ? 'New event' : occ ? 'Editing one occurrence' : (d.repeat && d.repeat.freq !== 'none') ? 'Editing the series' : 'Edit event';
@@ -955,7 +1005,7 @@ function onStartChange(){
   repOptions(F.sd.value, F.rep.value);
 }
 F.sd.addEventListener('change', onStartChange); F.st.addEventListener('change', onStartChange);
-F.all.addEventListener('change', () => { prevStart = edStart(); syncEditorUI(); });
+F.all.addEventListener('change', () => { prevStart = edStart(); fillRem(F.all.checked, F.rem.value === '' ? null : +F.rem.value); syncEditorUI(); });
 F.rep.addEventListener('change', syncEditorUI); F.cat.addEventListener('change', syncEditorUI);
 F.title.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); saveEditor(); } });
 function saveEditor(){
@@ -964,6 +1014,7 @@ function saveEditor(){
   if(!F.sd.value){ toast('Please pick a start date'); return; }
   d.title = F.title.value.trim(); d.allDay = F.all.checked; d.cat = F.cat.value;
   d.location = F.loc.value.trim(); d.notes = F.notes.value;
+  d.reminder = F.rem.value === '' ? null : +F.rem.value;
   if(d.allDay){
     let sd = F.sd.value, ed = F.ed.value || sd; if(ed < sd) ed = sd;
     d.sd = sd; d.ed = ed; d.start = +parseKey(sd); d.end = +addDays(parseKey(ed), 1);
@@ -1193,7 +1244,7 @@ async function deleteProject(){
   S.project = null; render();
 }
 /* item editor */
-const C = {title:$('#cTitle'), proj:$('#cProj'), status:$('#cStatus'), due:$('#cDue'), pri:$('#cPri'), notes:$('#cNotes')};
+const C = {title:$('#cTitle'), proj:$('#cProj'), status:$('#cStatus'), due:$('#cDue'), pri:$('#cPri'), notes:$('#cNotes'), rem:$('#cRem')};
 let CE = null;
 function fillStatus(sel){
   const p = PJ.mem.get(C.proj.value);
@@ -1210,6 +1261,7 @@ function openCard(x, opt){
   C.proj.innerHTML = projects().map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('');
   C.proj.value = d.projectId; fillStatus(d.col);
   C.due.value = d.due || ''; C.pri.value = d.priority || 'none'; C.notes.value = d.notes || '';
+  C.rem.value = d.remind == null ? '' : String(d.remind); if(C.rem.selectedIndex < 0) C.rem.value = '';
   $('#cdDelete').classList.toggle('hidden', !x);
   $('#cdKind').textContent = x ? 'Edit item' : 'New item';
   $('#cardEd').classList.add('open');
@@ -1225,7 +1277,7 @@ function saveCard(){
     const list = colCards(newProj, newCol).filter(c => c.id !== d.id);
     d.order = (list.length ? list[list.length-1].order : 0) + 1;
   }
-  Object.assign(d, {title: t, projectId: newProj, col: newCol, due: C.due.value || null, priority: C.pri.value, notes: C.notes.value});
+  Object.assign(d, {title: t, projectId: newProj, col: newCol, due: C.due.value || null, priority: C.pri.value, notes: C.notes.value, remind: C.rem.value === '' ? null : +C.rem.value});
   CD.put(d); closeCard(); render();
 }
 function deleteCard(){
@@ -1421,13 +1473,14 @@ function importText(name, text){
     [[DB, data.events], [PJ, data.projects], [CD, data.cards]].forEach(([st, arr]) => (arr || []).forEach(e => {
       if(!e || !e.id) return;
       const ex = st.mem.get(e.id);
-      if(!ex || (e.updatedAt || 0) >= (ex.updatedAt || 0)){ st.write(e); if(st === DB) n++; }
+      if(!ex || (e.updatedAt || 0) >= (ex.updatedAt || 0)){ e._lt = Date.now(); st.write(e); if(st === DB) n++; }
     }));
   } else {
     const r = parseICS(text);
     r.events.forEach(e => { DB.put(e); n++; });
     if(r.simplified) note = ` (${r.simplified} repeat rule${r.simplified > 1 ? 's' : ''} simplified)`;
   }
+  try{ Sync.schedule(); }catch(e){}
   render(); toast(`Imported ${n} event${n === 1 ? '' : 's'}${note}` + (/\.json$/i.test(name) || text.trim().startsWith('{') ? ' plus planner data' : ''));
 }
 $('#file').addEventListener('change', async e => {
@@ -1468,11 +1521,12 @@ menu.addEventListener('click', e => {
   if(a === 'backup') saveFile('alcal-backup-' + stamp + '.json', JSON.stringify({app:'personal-calendar', version:1, exported:new Date().toISOString(), events:[...DB.mem.values()], projects:[...PJ.mem.values()], cards:[...CD.mem.values()]}, null, 1), 'application/json');
   if(a === 'renameProject') renameProject();
   if(a === 'deleteProject') deleteProject();
+  if(a === 'sync') openSync();
   if(a === 'weekstart'){ S.weekStart = S.weekStart === 1 ? 0 : 1; LS.set('weekStart', S.weekStart); render(); }
 });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ if(chooserClose) chooserClose(null); else if(CE) closeCard(); else if(ED) closeEditor(); menu.classList.remove('open'); $('#pop').classList.remove('open'); document.body.classList.remove('side-open'); return; }
-  if(ED || CE || chooserClose || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+  if(e.key === 'Escape'){ if(chooserClose) chooserClose(null); else if($('#syncDlg').classList.contains('open')) closeSync(); else if(CE) closeCard(); else if(ED) closeEditor(); menu.classList.remove('open'); $('#pop').classList.remove('open'); document.body.classList.remove('side-open'); return; }
+  if(ED || CE || chooserClose || $('#syncDlg').classList.contains('open') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.toLowerCase();
   if(k === 'c' && S.mode !== 'calendar'){ setMode('calendar'); return; }
   if(k === 'p' && S.mode !== 'planner'){ setMode('planner'); return; }
@@ -1500,14 +1554,240 @@ setInterval(() => {
   if(document.querySelector('.col.today') && !document.querySelector('.col[data-date="' + dkey(new Date()) + '"]')) render();
 }, 60000);
 
+/* ---------- sync & reminders ---------- */
+const STORES = {events: DB, projects: PJ, cards: CD, settings: ST};
+const REM_OPTS = [[null, 'No reminder'], [0, 'At start time'], [5, '5 minutes before'], [10, '10 minutes before'], [15, '15 minutes before'],
+  [30, '30 minutes before'], [60, '1 hour before'], [120, '2 hours before'], [1440, '1 day before'], [2880, '2 days before'], [10080, '1 week before']];
+function remOptionsHTML(allDay){
+  return REM_OPTS.filter(([v]) => !allDay || v == null || v === 0 || v >= 1440)
+    .map(([v, l]) => `<option value="${v == null ? '' : v}">${esc(allDay && v === 0 ? 'On the day, 9:00' : allDay && v ? l + ', 9:00' : l)}</option>`).join('');
+}
+function fillRem(allDay, val){
+  F.rem.innerHTML = remOptionsHTML(allDay);
+  F.rem.value = val == null ? '' : String(val);
+  if(F.rem.selectedIndex < 0) F.rem.value = allDay ? '0' : '';
+}
+function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function isStandalone(){ return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; }
+function deviceName(){ const u = navigator.userAgent; return isIOS() ? (/iPad/.test(u) || navigator.maxTouchPoints > 1 && !/iPhone/.test(u) ? 'iPad' : 'iPhone') : /Mac/.test(u) ? 'Mac' : /Windows/.test(u) ? 'Windows PC' : /Android/.test(u) ? 'Android' : 'Computer'; }
+function b64uBytes(s){ s = s.replace(/-/g, '+').replace(/_/g, '/'); while(s.length % 4) s += '='; const b = atob(s), o = new Uint8Array(b.length); for(let i = 0; i < b.length; i++) o[i] = b.charCodeAt(i); return o; }
+function hashStr(s){ let h = 5381; for(let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return String(h); }
+
+async function api(path, body, cfg){
+  cfg = cfg || Sync.cfg;
+  if(!cfg) throw new Error('Sync is not set up');
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 20000);
+  try{
+    const r = await fetch(cfg.url.replace(/\/+$/, '') + path, {
+      method: body ? 'POST' : 'GET', signal: ctl.signal,
+      headers: Object.assign({'Authorization': 'Bearer ' + cfg.key}, body ? {'Content-Type': 'application/json'} : {}),
+      body: body ? JSON.stringify(body) : undefined
+    });
+    let j = {}; try{ j = await r.json(); }catch(e){}
+    if(!r.ok) throw new Error(j.error || ('Server error ' + r.status));
+    return j;
+  }catch(e){
+    if(e.name === 'AbortError') throw new Error('The server did not answer');
+    if(e instanceof TypeError) throw new Error('Could not reach the server');
+    throw e;
+  }finally{ clearTimeout(t); }
+}
+
+const Sync = {
+  busy:false, again:false, timer:null, state:'off', msg:'',
+  get cfg(){ return LS.get('sync', null); },
+  setState(st, msg){
+    this.state = st; this.msg = msg || '';
+    const b = $('#btnSync');
+    b.dataset.state = st;
+    b.title = ({off:'Sync is off', busy:'Syncing', ok:'Synced', err:'Sync problem: ' + this.msg, offline:'Offline: changes will sync later'})[st];
+    renderSyncStatus();
+  },
+  schedule(){ if(!this.cfg) return; clearTimeout(this.timer); this.timer = setTimeout(() => this.run(), 1500); },
+  async run(){
+    if(!this.cfg){ this.setState('off'); return; }
+    if(!navigator.onLine){ this.setState('offline'); return; }
+    if(this.busy){ this.again = true; return; }
+    this.busy = true; this.setState('busy');
+    try{
+      const started = Date.now(), lastPush = LS.get('sync.lastPush', -1), since = LS.get('sync.seq', 0);
+      const changes = [];
+      for(const [kind, st] of Object.entries(STORES)){
+        for(const x of st.mem.values()){
+          if((x._lt || 0) > lastPush){ const data = Object.assign({}, x); delete data._lt; changes.push({kind, id: x.id, updatedAt: x.updatedAt || 0, data}); }
+        }
+      }
+      const r = await api('/api/sync', {since, changes});
+      if(r.seq < since){ LS.set('sync.seq', 0); LS.set('sync.lastPush', -1); this.again = true; return; }   // server was reset: start over
+      let applied = 0;
+      for(const c of r.changes || []){
+        const st = STORES[c.kind];
+        if(!st || !c.data || c.data.id !== c.id) continue;
+        const ex = st.mem.get(c.id);
+        if(ex && ((ex._lt || 0) > started || (ex.updatedAt || 0) > c.updatedAt)) continue;   // our own newer edit wins
+        const d = c.data; delete d._lt; st.write(d); applied++;
+      }
+      LS.set('sync.lastPush', started); LS.set('sync.seq', r.seq); LS.set('sync.last', Date.now());
+      if(applied){ applyCatNames(); fillCatSelect(); if(!Drag.on) render(); }
+      await Reminders.upload();
+      await Push.refresh();
+      this.setState('ok');
+    }catch(e){ this.setState('err', e.message || String(e)); }
+    finally{ this.busy = false; if(this.again){ this.again = false; this.schedule(); } }
+  },
+  start(){
+    addEventListener('online', () => this.run());
+    addEventListener('offline', () => { if(this.cfg) this.setState('offline'); });
+    document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'visible') this.run(); });
+    setInterval(() => { if(document.visibilityState === 'visible') this.run(); }, 60000);
+    this.run();
+  }
+};
+
+const Reminders = {
+  compute(){
+    const from = new Date().setMinutes(0, 0, 0) - 36e5, to = +addDays(sod(new Date()), 46), out = [];
+    const dayFmt = d => d.toLocaleDateString([], {weekday:'short', day:'numeric', month:'short'});
+    for(const o of occurrences(new Date(from), new Date(to + 8*864e5), true)){
+      const r = o.ev.reminder;
+      if(r == null || r === '') continue;
+      const fireAt = (o.allDay ? +o.s + 9*36e5 : +o.s) - r*6e4;
+      if(fireAt < from || fireAt > to) continue;
+      const when = dayFmt(o.s) + (o.allDay ? ', all day' : ', ' + fmtTime(o.s) + ' - ' + fmtTime(o.e));
+      out.push({id: 'e:' + o.ev.id + ':' + (+o.s) + ':' + r, fireAt, title: o.ev.title || '(No title)', body: when + (o.ev.location ? ' · ' + o.ev.location : '')});
+    }
+    for(const x of CD.list()){
+      if(!x.due || x.remind == null) continue;
+      const p = PJ.mem.get(x.projectId);
+      if(!p || p.deleted || isDone(p, x)) continue;
+      const fireAt = +parseKey(x.due) + 9*36e5 - x.remind*6e4;
+      if(fireAt < from || fireAt > to) continue;
+      out.push({id: 'c:' + x.id + ':' + x.due + ':' + x.remind, fireAt, title: x.title || '(No title)', body: 'Due ' + dayFmt(parseKey(x.due)) + ' · ' + p.name});
+    }
+    return out.sort((a, b) => a.fireAt - b.fireAt).slice(0, 2000);
+  },
+  async upload(force){
+    if(!Sync.cfg) return;
+    const items = this.compute(), h = hashStr(JSON.stringify(items));
+    if(!force && h === LS.get('sync.remHash', '') && Date.now() - LS.get('sync.remAt', 0) < 6*36e5) return;
+    await api('/api/reminders', {items});
+    LS.set('sync.remHash', h); LS.set('sync.remAt', Date.now());
+  }
+};
+
+const Push = {
+  supported(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; },
+  isOn(){ return LS.get('push.on', false) && 'Notification' in window && Notification.permission === 'granted'; },
+  async enable(){
+    if(!Sync.cfg) throw new Error('Connect to your sync server first.');
+    if(!this.supported()) throw new Error(isIOS() && !isStandalone() ? 'On iPhone, open AlCal from its Home Screen icon first (iOS 16.4 or later).' : 'This browser does not support notifications.');
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted') throw new Error('Notifications were not allowed. You can change this in the system settings for this app.');
+    const reg = await navigator.serviceWorker.ready;
+    const {publicKey} = await api('/api/vapid');
+    let sub = await reg.pushManager.getSubscription();
+    if(sub && LS.get('push.key', '') !== publicKey){ try{ await sub.unsubscribe(); }catch(e){} sub = null; }
+    if(!sub) sub = await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64uBytes(publicKey)});
+    const r = await api('/api/subscribe', {subscription: sub.toJSON(), device: deviceName()});
+    LS.set('push.key', publicKey); LS.set('push.on', true); LS.set('push.at', Date.now());
+    await Reminders.upload(true);
+    return r;
+  },
+  async disable(){
+    LS.set('push.on', false);
+    try{
+      const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+      if(sub){ try{ await api('/api/unsubscribe', {endpoint: sub.endpoint}); }catch(e){} await sub.unsubscribe(); }
+    }catch(e){}
+  },
+  async refresh(){
+    if(!this.isOn() || !this.supported() || Date.now() - LS.get('push.at', 0) < 864e5) return;
+    try{
+      const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+      if(sub){ await api('/api/subscribe', {subscription: sub.toJSON(), device: deviceName()}); LS.set('push.at', Date.now()); }
+      else LS.set('push.on', false);
+    }catch(e){}
+  }
+};
+
+function renderSyncStatus(){
+  const st = $('#syStatus'); if(!st) return;
+  const c = Sync.cfg, last = LS.get('sync.last', 0);
+  st.textContent = !c ? 'Not connected. Everything stays on this device only.'
+    : Sync.state === 'busy' ? 'Syncing...'
+    : Sync.state === 'err' ? 'Problem: ' + Sync.msg
+    : Sync.state === 'offline' ? 'Offline. Changes will sync when you are back online.'
+    : last ? 'Connected. Last synced ' + new Date(last).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'}) + '.' : 'Connected.';
+  st.classList.toggle('bad', Sync.state === 'err');
+  $('#syOff').classList.toggle('hidden', !c); $('#syNow').classList.toggle('hidden', !c);
+  const on = Push.isOn();
+  $('#pushHint').textContent = on ? 'Notifications are on for this device. Reminders arrive even when AlCal is closed.'
+    : isIOS() && !isStandalone() ? 'On iPhone, notifications only work when AlCal is opened from its Home Screen icon (iOS 16.4 or later).'
+    : 'Reminders arrive as notifications, even when AlCal is closed. Turn them on once on each device.';
+  $('#pushOn').textContent = on ? 'Turn off on this device' : 'Turn on notifications';
+  $('#pushOn').classList.toggle('primary', !on);
+  $('#pushTest').classList.toggle('hidden', !on);
+}
+function openSync(){
+  const c = Sync.cfg || {};
+  $('#syUrl').value = c.url || ''; $('#syKey').value = c.key || '';
+  const dr = $('#defRem'); dr.innerHTML = remOptionsHTML(false);
+  const v = LS.get('defaultReminder', 15); dr.value = v == null ? '' : String(v);
+  $('#pushStatus').textContent = '';
+  renderSyncStatus();
+  $('#syncDlg').classList.add('open');
+}
+function closeSync(){ $('#syncDlg').classList.remove('open'); }
+$('#btnSync').onclick = openSync;
+$('#syClose').onclick = closeSync;
+$('#defRem').onchange = e => LS.set('defaultReminder', e.target.value === '' ? null : +e.target.value);
+$('#syConnect').onclick = async () => {
+  let url = $('#syUrl').value.trim(); const key = $('#syKey').value.trim(), st = $('#syStatus');
+  if(url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+  if(!/^https:\/\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(url) || !key){ st.textContent = 'Please enter the server address (https://...) and your sync key.'; st.classList.add('bad'); return; }
+  st.textContent = 'Connecting...'; st.classList.remove('bad');
+  try{
+    const r = await api('/api/ping', null, {url, key});
+    LS.set('sync', {url, key}); LS.set('sync.seq', 0); LS.set('sync.lastPush', -1); LS.set('sync.remHash', '');
+    await Sync.run();
+    toast(r.records ? 'Connected. Merged with ' + r.records + ' records from the server.' : 'Connected. Your data is now on the server.');
+  }catch(e){ st.textContent = 'Could not connect: ' + e.message; st.classList.add('bad'); }
+};
+$('#syNow').onclick = () => Sync.run();
+$('#syOff').onclick = async () => {
+  const ok = await choose('Disconnect this device?', 'Your events stay on this device but no longer sync. Notifications on this device stop.', [['yes', 'Disconnect']]);
+  if(!ok) return;
+  await Push.disable();
+  LS.set('sync', null); Sync.setState('off');
+};
+$('#pushOn').onclick = async () => {
+  const ps = $('#pushStatus'); ps.classList.remove('bad');
+  if(Push.isOn()){ await Push.disable(); ps.textContent = 'Notifications turned off for this device.'; renderSyncStatus(); return; }
+  ps.textContent = 'Setting up...';
+  try{ const r = await Push.enable(); ps.textContent = `Notifications are on. ${r.devices} device${r.devices === 1 ? '' : 's'} will receive reminders.`; }
+  catch(e){ ps.textContent = e.message; ps.classList.add('bad'); }
+  renderSyncStatus();
+};
+$('#pushTest').onclick = async () => {
+  const ps = $('#pushStatus'); ps.classList.remove('bad'); ps.textContent = 'Sending...';
+  try{
+    const r = await api('/api/test', {});
+    ps.textContent = r.delivered ? `Sent to ${r.delivered} of ${r.devices} device${r.devices === 1 ? '' : 's'}. It should appear in a few seconds.` : 'Not delivered. ' + (r.errors || []).join(' ');
+    if(!r.delivered) ps.classList.add('bad');
+  }catch(e){ ps.textContent = e.message; ps.classList.add('bad'); }
+};
+
 /* ---------- start ---------- */
+
 (async () => {
   await IDB.open();
+  applyCatNames(); fillCatSelect();
   try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
   render();
   if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
     try{ navigator.serviceWorker.register('sw.js').catch(() => {}); }catch(e){}
   }
+  Sync.start();
 })();
 </script>
 </body>

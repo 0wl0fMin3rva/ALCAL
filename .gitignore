@@ -1,0 +1,3 @@
+server/.dev.vars
+server/.wrangler/
+node_modules/

@@ -1,5 +1,5 @@
-// Offline support: serve the app from the cache, refresh it in the background when online.
-const CACHE = 'alcal-v5';
+// AlCal service worker: offline cache, plus push notifications for reminders.
+const CACHE = 'alcal-v6';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './seal.png'];
 
 self.addEventListener('install', e => {
@@ -20,5 +20,21 @@ self.addEventListener('fetch', e => {
       return res;
     }).catch(() => cached);
     return cached || fresh;
+  }));
+});
+
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = {body: e.data ? e.data.text() : ''}; }
+  e.waitUntil(self.registration.showNotification(d.title || 'AlCal', {
+    body: d.body || '', tag: d.tag || undefined, icon: 'icon-192.png', badge: 'icon-192.png', data: {url: './'}
+  }));
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(list => {
+    for (const w of list) if ('focus' in w) return w.focus();
+    return self.clients.openWindow('./');
   }));
 });
