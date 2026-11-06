@@ -345,8 +345,6 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
 .anone:hover{background:var(--line-soft)}
 
 /* Subscribed calendars and read-only entries */
-.cats h3.sub{margin-top:14px}
-.cat .fstat{font-size:11px;color:var(--text2);margin-left:auto;white-space:nowrap}
 .chip.feed,.ev.feed{cursor:default}
 .ev.feed{border-left-style:dotted}
 .chip.feed.fill{border-left-style:dotted}
@@ -734,8 +732,8 @@ function nth(b, f, n){
 function mk(ev, s, e, rec){ return {ev, s, e, allDay:ev.allDay, rec:!!rec, key:dkey(s)}; }
 function occurrences(rs, re, all){
   const out = [];
-  for(const ev of DB.list().concat(feedEvents(rs, re, all ? null : S.hidden))){
-    if(!all && S.hidden.has(ev.cat)) continue;
+  for(const ev of DB.list().concat(feedEvents(rs, re))){
+    if(!all && !ev.feed && S.hidden.has(ev.cat)) continue;
     occOf(ev, rs, re, out);
   }
   return out;
@@ -866,17 +864,6 @@ function renderCats(){
   const t = el('div', 'cat', `<span class="box${on?' on':''}" style="--c:#616161">${on?ICON_CHECK:''}</span>Planner items`);
   t.onclick = () => { on ? S.hidden.add('tasks') : S.hidden.delete('tasks'); LS.set('hidden', [...S.hidden]); render(); };
   box.append(t);
-  box.append(el('h3', 'sub', 'Subscribed'));
-  FEEDS.forEach(f => {
-    const fon = !S.hidden.has(f.id);
-    let st = '', tip = '';
-    if(f.url){ const c = Remote.get(f); if(!c || !(c.events || []).length){ st = c && c.err ? 'not loaded' : 'loading'; tip = (c && c.err) || ''; } else tip = 'Updated ' + new Date(c.at).toLocaleString([], {weekday:'short', hour:'numeric', minute:'2-digit'}); }
-    if(f.key === 'jewish' && !HEB_FMT){ st = 'unsupported'; tip = 'This browser cannot convert dates to the Hebrew calendar.'; }
-    const r = el('div', 'cat', `<span class="box${fon?' on':''}" style="--c:${f.c}">${fon?ICON_CHECK:''}</span><span class="catname">${esc(f.name)}</span>` + (st ? `<span class="fstat">${esc(st)}</span>` : ''));
-    if(tip) r.title = tip;
-    r.onclick = () => { fon ? S.hidden.add(f.id) : S.hidden.delete(f.id); LS.set('hidden', [...S.hidden]); render(); if(!fon && f.url) Remote.refresh(f, true); };
-    box.append(r);
-  });
 }
 
 /* ---------- time grid (day / 3 days / work week / week) ---------- */
@@ -1174,10 +1161,9 @@ const FEEDS = [
   {id:'feed-moon',   key:'moon',   name:'Full moon', c:'#a9a9a9', gen: moonYear}
 ];
 const FeedCache = new Map();
-function feedEvents(rs, re, hidden){
+function feedEvents(rs, re){
   const out = [], y0 = new Date(rs).getFullYear() - 1, y1 = Math.min(new Date(re).getFullYear(), y0 + 6);
   for(const f of FEEDS){
-    if(hidden && hidden.has(f.id)) continue;
     let list = [];
     if(f.url) list = Remote.events(f);
     else for(let y = y0; y <= y1; y++) list = list.concat(feedYear(f, y));
@@ -1332,7 +1318,7 @@ const Remote = {
       if(S.mode === 'calendar') renderCats();
     }finally{ this.busy[f.key] = false; }
   },
-  refreshAll(force){ FEEDS.filter(f => f.url && !S.hidden.has(f.id)).forEach(f => this.refresh(f, force)); }
+  refreshAll(force){ FEEDS.filter(f => f.url).forEach(f => this.refresh(f, force)); }
 };
 function fmtDay(d, y){ return new Date(d).toLocaleDateString([], {weekday:'short', day:'numeric', month:'short', year: y || new Date(d).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined}); }
 function whenText(o){
@@ -2024,7 +2010,7 @@ function searchRun(q){
     events.push(o);
   }
   const feeds = [];
-  for(const ev of feedEvents(addDays(today, -60), addDays(today, 400), S.hidden)){
+  for(const ev of feedEvents(addDays(today, -60), addDays(today, 400))){
     const f = FEEDS.find(x => x.key === ev.feed);
     if(hit(ev.title, ev.location, ev.notes, f && f.name)) feeds.push(mk(ev, new Date(ev.start), new Date(ev.end), false));
   }

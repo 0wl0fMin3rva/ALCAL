@@ -88,7 +88,7 @@ on all devices; anything created after the snapshot is kept.
 
 ## Subscribed calendars
 
-The sidebar lists four read-only calendars under **Subscribed**. Tick or untick them per device.
+Four read-only calendars are always shown in the calendar.
 
 - **Jewish holidays** (diaspora dates), **Zurich holidays** (cantonal public holidays plus the Sechseläuten
   and Knabenschiessen afternoons) and **Full moon** are calculated on the device and work offline.
