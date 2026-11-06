@@ -38,7 +38,7 @@ svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke
 .topbar{background:var(--bar);color:#fff;display:flex;align-items:center;gap:8px;height:46px;padding:env(safe-area-inset-top) 10px 0;box-sizing:content-box;flex:none}
 .appname{font-family:'AlCal Logo',Georgia,serif;font-weight:900;font-stretch:87.5%;font-size:23px;line-height:1;letter-spacing:-.045em;transform:scaleY(1.08);display:inline-block}
 b,strong,.bold,.range,.dayhead .num,.mini-head,.cats h3,.plist h3,.colhead,.apptab,.btn.primary,.dialog h2,.empty-title{font-weight:600;letter-spacing:-.01em}
-.ev,.chip,.card,input,textarea,.sel,.toast .user{font-family:var(--sans);font-stretch:100%;letter-spacing:normal}
+.ev,.chip,.card,.li,input,textarea,.sel,.toast .user{font-family:var(--sans);font-stretch:100%;letter-spacing:normal}
 select{font-family:var(--ui)}
 .pill{font-size:12px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px;display:none}
 .pill.show{display:inline-block}
@@ -206,11 +206,12 @@ input.title:focus{border-bottom-color:var(--brand)}
 .fab svg{width:26px;height:26px;stroke-width:2}
 
 /* App tabs */
-.apptabs{display:flex;gap:2px;margin-left:12px;align-self:stretch}
-.apptab{background:none;border:0;color:rgba(255,255,255,.65);padding:0 10px;cursor:pointer;font-size:15px;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.apptabs{display:flex;gap:2px;margin-left:12px;align-self:stretch;min-width:0;overflow-x:auto;scrollbar-width:none}
+.apptabs::-webkit-scrollbar{display:none}
+.apptab{flex:none;white-space:nowrap;background:none;border:0;color:rgba(255,255,255,.65);padding:0 10px;cursor:pointer;font-size:15px;border-top:3px solid transparent;border-bottom:3px solid transparent}
 .apptab:hover{color:#fff}
 .apptab.on{color:#fff;border-bottom-color:#fff}
-body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:none!important}
+body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-only,body:not(.listmode) .list-only{display:none!important}
 
 /* Planner */
 .plist h3{font-size:12px;text-transform:uppercase;color:var(--text2);margin:0 0 6px}
@@ -257,6 +258,30 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
 .pop button:hover{background:var(--line-soft)}
 .pop button.danger,.menu button.danger{color:var(--now)}
 
+/* Lists: Purchase, Reading, Ideas */
+.lwrap{flex:1;min-height:0;display:flex;flex-direction:column;container-type:inline-size}
+.lists{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(240px,1fr);gap:12px;padding:12px;overflow-y:auto;background:var(--surface);padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+@container (max-width:860px){.lists{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.column.lcol{width:auto;max-height:none;min-height:0}
+.lcol .colhead{min-height:46px}
+.lcol.flash{animation:lflash 1s ease}
+@keyframes lflash{0%,40%{box-shadow:0 0 0 2px var(--c)}100%{box-shadow:0 0 0 2px transparent}}
+.litems{flex:1;min-height:0;overflow-y:auto;padding:4px 8px;display:flex;flex-direction:column;gap:6px}
+.li{display:flex;align-items:flex-start;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;flex:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.li:hover{border-color:var(--text2)}
+.li.dragging{box-shadow:0 10px 24px rgba(0,0,0,.22);transform:rotate(1.5deg);position:relative;z-index:5}
+.lchk{flex:none;width:28px;height:28px;margin:-6px -4px -6px -8px;border:0;background:none;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.lbox{width:16px;height:16px;border-radius:3px;border:2px solid var(--c);display:flex;align-items:center;justify-content:center;color:#fff}
+.lbox.on{background:var(--c)}
+.lbox svg{width:12px;height:12px;stroke-width:2.6}
+.ltext{flex:1;min-width:0}
+.ltitle{font-size:14px;line-height:1.35;word-break:break-word}
+.lsub{font-size:12.5px;line-height:1.4;color:var(--text2);margin-top:2px;word-break:break-word}
+.ldesc{margin-top:4px;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.li.done{opacity:.55}
+.li.done .ltitle{text-decoration:line-through;color:var(--text2)}
+.addform input,.addform textarea{width:100%}
+
 /* Sync */
 #btnSync{color:#fff;position:relative}
 #btnSync[data-state=off]{opacity:.45}
@@ -282,12 +307,16 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
   body.side-open .sidebar{transform:none}
   .scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:39}
   body.side-open .scrim{display:block}
-  #btnNew,#btnNewItem,.seg{display:none}
+  #btnNew,#btnNewItem,#btnNewList,.seg{display:none}
+  .lists{grid-template-columns:1fr;grid-auto-rows:max-content;padding:10px;gap:10px;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  .column.lcol{min-height:auto}
+  .apptabs{-webkit-mask-image:linear-gradient(to right,transparent,#000 10px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(to right,transparent,#000 10px,#000 calc(100% - 10px),transparent)}
+  .lcol .litems{overflow:visible;flex:none}
   .column{width:84vw}
   body[data-mode=planner] .board{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
   .board{padding:10px;gap:10px}
   .apptabs{margin-left:6px}
-  .apptab{padding:0 7px;font-size:14px}
+  .apptab{padding:0 6px;font-size:14px}
   .lbl{display:none}
   .viewsel{display:inline-block;padding:4px 6px;flex:none;width:104px}
   .fab{display:flex}
@@ -295,8 +324,8 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
   .cmdbar .btn{padding:0 10px}
   .range{font-size:15px}
   select,input,textarea{font-size:16px}
-  #editor,#cardEd,#syncDlg{padding:0;align-items:stretch}
-  #editor .dialog,#cardEd .dialog,#syncDlg .dialog{width:100%;max-height:none;height:100%;border-radius:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  #editor,#cardEd,#listEd,#syncDlg{padding:0;align-items:stretch}
+  #editor .dialog,#cardEd .dialog,#listEd .dialog,#syncDlg .dialog{width:100%;max-height:none;height:100%;border-radius:0;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
   .dlg-body{padding:14px 16px}
   .dayhead{padding:4px;flex-direction:column;align-items:center;gap:0}
   .dayhead .num{font-size:17px}
@@ -315,7 +344,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
 <header class="topbar">
   <button class="iconbtn" id="btnSide" aria-label="Show or hide navigation"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <span class="appname">AlCal</span>
-  <nav class="apptabs"><button class="apptab" data-mode="calendar">Calendar</button><button class="apptab" data-mode="planner">Planner</button></nav>
+  <nav class="apptabs"><button class="apptab" data-mode="calendar">Calendar</button><button class="apptab" data-mode="planner">Planner</button><button class="apptab" data-mode="purchase">Purchase</button><button class="apptab" data-mode="reading">Reading</button><button class="apptab" data-mode="ideas">Ideas</button></nav>
   <span class="spacer"></span>
   <span class="pill" id="offline">Offline</span>
   <button class="iconbtn" id="btnSync" data-state="off" aria-label="Sync and reminders" title="Sync is off"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.1 4.5 4.5 0 0 0 7 18z"/></svg></button>
@@ -328,6 +357,8 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
   <div class="range cal-only" id="range"></div>
   <button class="btn primary plan-only" id="btnNewItem"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New item</button>
   <div class="range plan-only" id="ptitle"></div>
+  <button class="btn primary list-only" id="btnNewList"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New item</button>
+  <div class="range list-only" id="ltitle"></div>
   <span class="spacer"></span>
   <div class="seg cal-only" id="seg">
     <button data-v="day">Day</button><button data-v="workweek">Work week</button><button data-v="week">Week</button><button data-v="month">Month</button>
@@ -343,6 +374,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
     <div id="mini" class="cal-only"></div>
     <div class="cats cal-only" id="cats"></div>
     <div class="plist plan-only" id="projects"></div>
+    <div class="plist list-only" id="lnav"></div>
     <div class="daily" id="daily" aria-label="Line of the day"></div>
     <div class="side-foot"><img class="seal" src="seal.png" alt=""></div>
   </aside>
@@ -423,6 +455,24 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
       <div class="frow"><svg viewBox="0 0 24 24"><path d="M5 21V4h11l-2 4 2 4H5"/></svg><select id="cPri"><option value="none">No priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
       <div class="frow"><svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><select id="cRem" aria-label="Reminder"><option value="">No reminder</option><option value="0">On the due date, 9:00</option><option value="1440">The day before, 9:00</option><option value="10080">A week before, 9:00</option></select></div>
       <div class="frow top"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 10h14M5 14h14M5 18h9"/></svg><textarea id="cNotes" class="grow" rows="7" placeholder="Add a description"></textarea></div>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="listEd">
+  <div class="dialog" role="dialog" aria-label="List item">
+    <div class="dlg-head">
+      <button class="btn primary" id="leSave">Save</button>
+      <button class="btn danger" id="leDelete"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg>Delete</button>
+      <span class="spacer"></span>
+      <span class="kind" id="leKind"></span>
+      <button class="iconbtn" id="leClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="dlg-body">
+      <input id="lTitle" class="title" placeholder="Title" autocomplete="off" enterkeyhint="done">
+      <div class="frow" id="lAuthorRow"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><input id="lAuthor" class="grow" placeholder="Author" autocomplete="off" enterkeyhint="done"></div>
+      <div class="frow"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg><select id="lCat"></select></div>
+      <div class="frow" id="lDoneRow"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg><label class="toggle" style="margin-left:0"><input type="checkbox" id="lDone"><span id="lDoneLbl">Done</span></label></div>
+      <div class="frow top" id="lDescRow"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 10h14M5 14h14M5 18h9"/></svg><textarea id="lDesc" class="grow" rows="7" placeholder="Add a description"></textarea></div>
     </div>
   </div>
 </div>
@@ -513,17 +563,17 @@ class Store {
   remove(id){ const x = this.mem.get(id); if(x){ x.deleted = true; this.put(x); } }   // soft delete, ready for sync
   list(){ return [...this.mem.values()].filter(x => !x.deleted); }
 }
-const DB = new Store('events'), PJ = new Store('projects'), CD = new Store('cards'), ST = new Store('settings');
+const DB = new Store('events'), PJ = new Store('projects'), CD = new Store('cards'), ST = new Store('settings'), LI = new Store('lists');
 const IDB = {
   db:null,
   async open(){
     try{
       this.db = await new Promise((res, rej) => {
-        const r = indexedDB.open('personal-calendar', 3);
-        r.onupgradeneeded = () => { const d = r.result; ['events','projects','cards','settings'].forEach(n => { if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:'id'}); }); };
+        const r = indexedDB.open('personal-calendar', 4);
+        r.onupgradeneeded = () => { const d = r.result; ['events','projects','cards','settings','lists'].forEach(n => { if(!d.objectStoreNames.contains(n)) d.createObjectStore(n, {keyPath:'id'}); }); };
         r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
       });
-      for(const st of [DB, PJ, CD, ST]) await st.load(this.db);
+      for(const st of [DB, PJ, CD, ST, LI]) await st.load(this.db);
     }catch(e){ this.db = null; setTimeout(() => toast('Storage is unavailable here, so your data will not be kept'), 300); }
   }
 };
@@ -538,7 +588,8 @@ const S = {
   miniMonth: null,
   mode: LS.get('mode', 'calendar'),
   project: LS.get('project', null),
-  boardScroll: 0
+  boardScroll: 0,
+  listScroll: {}
 };
 const Drag = {on:false};
 let suppressUntil = 0, lastPT = 'mouse';
@@ -610,7 +661,8 @@ function viewDays(){
   }
 }
 function setView(v){ S.view = v; LS.set('view', v); render(); }
-function setMode(m){ S.mode = m; LS.set('mode', m); document.body.classList.remove('side-open'); render(); }
+function setMode(m){ S.mode = m; LS.set('mode', m); document.body.classList.remove('side-open'); render();
+  const t = document.querySelector('.apptab.on'); if(t && isMobile()) try{ t.scrollIntoView({block:'nearest', inline:'nearest'}); }catch(e){} }
 function nav(dir){
   if(dir === 0) S.date = sod(new Date());
   else if(S.view === 'month') S.date = new Date(S.date.getFullYear(), S.date.getMonth() + dir, 1);
@@ -618,9 +670,12 @@ function nav(dir){
   S.miniMonth = null; render();
 }
 function render(){
+  if(S.mode !== 'calendar' && S.mode !== 'planner' && !isListMode(S.mode)) S.mode = 'calendar';
   document.body.dataset.mode = S.mode;
+  document.body.classList.toggle('listmode', isListMode(S.mode));
   document.querySelectorAll('.apptab').forEach(b => b.classList.toggle('on', b.dataset.mode === S.mode));
   if(S.mode === 'planner'){ renderPlanner(); return; }
+  if(isListMode(S.mode)){ renderLists(); return; }
   updateRange(); renderMini(); renderCats();
   document.querySelectorAll('#seg button').forEach(b => b.classList.toggle('on', b.dataset.v === S.view));
   $('#viewsel').value = S.view;
@@ -1368,6 +1423,184 @@ C.title.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefau
 $('#cdSave').onclick = saveCard; $('#cdDelete').onclick = deleteCard; $('#cdClose').onclick = closeCard;
 document.addEventListener('click', e => { const m = $('#pop'); if(!m.contains(e.target)) m.classList.remove('open'); });
 
+/* ---------- lists: Purchase, Reading, Ideas ---------- */
+const LIST_COLORS = ['#2f80ff', '#ff6a00', '#ff2d55', '#a25bff', '#1fc94f', '#ffb300', '#00c2c7', '#9aa0a6'];
+const SECTIONS = {
+  purchase: {name:'Purchase', noun:'item', ph:'Item to buy', tick:true, doneLabel:'Bought',
+    cats:[['food', 'Food & Drink'], ['clothing', 'Clothing & Accessories'], ['cosmetics', 'Cosmetics'], ['tech', 'Tech'],
+          ['finance', 'Finance'], ['fitness', 'Fitness & Health'], ['subs', 'Subscriptions'], ['misc', 'Miscellaneous']]},
+  reading: {name:'Reading', noun:'title', ph:'Title', tick:true, author:true, doneLabel:'Read',
+    cats:[['books', 'Books'], ['articles', 'Articles'], ['abooks', 'Academic Books'], ['aarticles', 'Academic Articles']]},
+  ideas: {name:'Ideas', noun:'idea', ph:'Idea', desc:true,
+    cats:[['academic', 'Academic'], ['creative', 'Creative'], ['money', 'Money'], ['projects', 'Projects']]}
+};
+function isListMode(m){ return Object.prototype.hasOwnProperty.call(SECTIONS, m); }
+function listItems(key, cat){ return LI.list().filter(x => x.section === key && x.cat === cat).sort((a, b) => (!!a.done - !!b.done) || (a.order - b.order)); }
+function nextOrder(key, cat){ return LI.list().filter(x => x.section === key && x.cat === cat).reduce((m, x) => Math.max(m, x.order || 0), 0) + 1; }
+function catColor(key, cat){ const i = SECTIONS[key].cats.findIndex(c => c[0] === cat); return LIST_COLORS[Math.max(0, i) % LIST_COLORS.length]; }
+function openCount(key, sec, cat){ return listItems(key, cat).filter(x => !sec.tick || !x.done).length; }
+function renderLists(){
+  const key = S.mode, sec = SECTIONS[key];
+  $('#ltitle').textContent = sec.name;
+  renderListNav();
+  const c = $('#content'); c.innerHTML = '';
+  const wrap = el('div', 'lwrap'), grid = el('div', 'lists');
+  sec.cats.forEach(([id, name], i) => grid.append(listCol(key, sec, id, name, LIST_COLORS[i % LIST_COLORS.length])));
+  wrap.append(grid); c.append(wrap);
+  grid.scrollTop = S.listScroll[key] || 0; grid.onscroll = () => { S.listScroll[key] = grid.scrollTop; };
+}
+function renderListNav(){
+  const key = S.mode, sec = SECTIONS[key], box = $('#lnav'); if(!sec) return;
+  box.innerHTML = '<h3>' + esc(sec.name) + '</h3>';
+  sec.cats.forEach(([id, name], i) => {
+    const n = openCount(key, sec, id);
+    const r = el('div', 'prow', `<span class="cdot" style="--c:${LIST_COLORS[i % LIST_COLORS.length]}"></span><span class="pname">${esc(name)}</span><span class="pcount">${n || ''}</span>`);
+    r.onclick = () => {
+      document.body.classList.remove('side-open');
+      const col = document.querySelector(`.lcol[data-cat="${id}"]`); if(!col) return;
+      try{ col.scrollIntoView({behavior:'smooth', block:'nearest', inline:'nearest'}); }catch(e){ col.scrollIntoView(); }
+      col.classList.remove('flash'); void col.offsetWidth; col.classList.add('flash');
+    };
+    box.append(r);
+  });
+}
+function listCol(key, sec, cat, name, color){
+  const col = el('div', 'column lcol'); col.dataset.cat = cat; col.style.setProperty('--c', color);
+  const items = listItems(key, cat);
+  const head = el('div', 'colhead', `<span class="cdot"></span><span class="cname">${esc(name)}</span><span class="count">${openCount(key, sec, cat)}</span>`);
+  if(sec.tick && items.some(x => x.done)){
+    const mb = el('button', 'iconbtn', ICON_MORE); mb.setAttribute('aria-label', 'List options');
+    mb.onclick = e => { e.stopPropagation(); popMenu(mb, [['Clear ticked items', () => clearTicked(key, cat), 'danger']]); };
+    head.append(mb);
+  }
+  const box = el('div', 'litems'); items.forEach(x => box.append(listEl(x, sec)));
+  const add = el('button', 'additem', ICON_PLUS + 'Add ' + sec.noun); add.onclick = () => listInlineAdd(key, sec, cat, col, add);
+  col.append(head, box, add);
+  return col;
+}
+function listEl(x, sec){
+  const d = el('div', 'li' + (x.done ? ' done' : '')); d.dataset.id = x.id;
+  let h = '';
+  if(sec.tick) h += `<button class="lchk" aria-label="${x.done ? 'Untick' : 'Tick'}"><span class="lbox${x.done ? ' on' : ''}">${x.done ? ICON_CHECK : ''}</span></button>`;
+  h += `<div class="ltext"><div class="ltitle">${esc(x.title || '(No title)')}</div>`;
+  if(sec.author && x.author) h += `<div class="lsub">${esc(x.author)}</div>`;
+  if(sec.desc && x.desc && x.desc.trim()) h += `<div class="lsub ldesc">${esc(x.desc.trim())}</div>`;
+  d.innerHTML = h + '</div>';
+  const chk = d.querySelector('.lchk');
+  if(chk){
+    chk.addEventListener('pointerdown', e => e.stopPropagation());
+    chk.onclick = e => { e.stopPropagation(); toggleDone(x); };
+  }
+  d.oncontextmenu = e => { if(ctxOk(e)) popAt(e.clientX, e.clientY, [['Edit', () => openListItem(x)]].concat(sec.tick ? [[x.done ? 'Untick' : 'Tick', () => toggleDone(x)]] : [], [['Delete', () => deleteListItem(x.id), 'danger']])); };
+  d.addEventListener('pointerdown', e => { if(e.button === 0) listDrag(e, d, x); });
+  return d;
+}
+function toggleDone(x){ x.done = !x.done; x.doneAt = x.done ? Date.now() : null; LI.put(x); render(); }
+function listDrag(e, d, x){
+  let target = null;
+  gesture(e, {
+    onStart(){ d.classList.add('dragging'); },
+    onMove(ev){
+      d.style.pointerEvents = 'none';
+      const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+      d.style.pointerEvents = '';
+      const grid = document.querySelector('.lists');
+      if(grid){ const r = grid.getBoundingClientRect(); if(ev.clientY > r.bottom - 40) grid.scrollTop += 12; else if(ev.clientY < r.top + 40) grid.scrollTop -= 12; }
+      const colEl = hit && hit.closest('.lcol'); if(!colEl) return;
+      const box = colEl.querySelector('.litems'), bb = box.getBoundingClientRect();
+      if(ev.clientY > bb.bottom - 30) box.scrollTop += 10; else if(ev.clientY < bb.top + 30) box.scrollTop -= 10;
+      let before = null;
+      for(const n of box.children){ if(n === d) continue; const r = n.getBoundingClientRect(); if(ev.clientY < r.top + r.height/2){ before = n; break; } }
+      if(before){ if(d.nextSibling !== before) box.insertBefore(d, before); } else if(box.lastChild !== d) box.append(d);
+      target = colEl.dataset.cat;
+    },
+    onEnd(){
+      if(!target){ render(); return; }
+      const sib = [...d.parentNode.children], i = sib.indexOf(d);
+      const prev = sib[i-1] && LI.mem.get(sib[i-1].dataset.id), next = sib[i+1] && LI.mem.get(sib[i+1].dataset.id);
+      x.order = prev && next ? (prev.order + next.order)/2 : prev ? prev.order + 1 : next ? next.order - 1 : 0;
+      x.cat = target; LI.put(x); render();
+    },
+    onTap(){ openListItem(x); }
+  });
+}
+function listInlineAdd(key, sec, cat, col, addBtn){
+  addBtn.classList.add('hidden');
+  const f = el('div', 'addform'), t = el('input'); t.placeholder = sec.ph; t.autocomplete = 'off'; t.enterKeyHint = 'done';
+  const a = sec.author ? el('input') : null, ds = sec.desc ? el('textarea') : null;
+  if(a){ a.placeholder = 'Author'; a.autocomplete = 'off'; a.enterKeyHint = 'done'; }
+  if(ds){ ds.rows = 3; ds.placeholder = 'Description'; }
+  const row = el('div', 'addrow'), ok = el('button', 'btn primary', 'Add'), cancel = el('button', 'btn', 'Cancel');
+  row.append(ok, cancel); f.append(...[t, a, ds, row].filter(Boolean)); col.append(f); t.focus();
+  const box = col.querySelector('.litems');
+  const commit = () => {
+    const title = t.value.trim(); if(!title){ t.focus(); return; }
+    const x = {id: uid(), section: key, cat, title, author: a ? a.value.trim() : '', desc: ds ? ds.value : '', done: false, order: nextOrder(key, cat), createdAt: Date.now()};
+    LI.put(x);
+    const firstDone = box.querySelector('.li.done'), node = listEl(x, sec);
+    firstDone ? box.insertBefore(node, firstDone) : box.append(node);
+    node.scrollIntoView({block:'nearest'});
+    col.querySelector('.count').textContent = openCount(key, sec, cat);
+    renderListNav();
+    t.value = ''; if(a) a.value = ''; if(ds) ds.value = ''; t.focus();
+  };
+  const close = () => { f.remove(); addBtn.classList.remove('hidden'); };
+  ok.onclick = commit; cancel.onclick = close;
+  f.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); commit(); }
+    if(e.key === 'Escape'){ e.stopPropagation(); close(); }
+  });
+}
+async function clearTicked(key, cat){
+  const done = listItems(key, cat).filter(x => x.done); if(!done.length) return;
+  done.forEach(x => LI.remove(x.id)); render();
+  toast(`${done.length} ticked item${done.length > 1 ? 's' : ''} cleared`, {label:'Undo', fn(){ done.forEach(x => { const y = LI.mem.get(x.id); if(y){ y.deleted = false; LI.put(y); } }); render(); }});
+}
+function deleteListItem(id){
+  LI.remove(id); render();
+  toast('Item deleted', {label:'Undo', fn(){ const x = LI.mem.get(id); if(x){ x.deleted = false; LI.put(x); render(); } }});
+}
+/* list item editor */
+const L = {title:$('#lTitle'), author:$('#lAuthor'), cat:$('#lCat'), done:$('#lDone'), desc:$('#lDesc')};
+let LE = null;
+function openListItem(x, opt){
+  opt = opt || {};
+  const key = x ? x.section : S.mode, sec = SECTIONS[key]; if(!sec) return;
+  const d = x ? clone(x) : {id: uid(), section: key, cat: opt.cat || sec.cats[0][0], title: '', author: '', desc: '', done: false, order: 0, createdAt: Date.now()};
+  LE = {d, isNew: !x, sec};
+  L.title.value = d.title || ''; L.title.placeholder = sec.ph;
+  L.author.value = d.author || ''; L.desc.value = d.desc || ''; L.done.checked = !!d.done;
+  L.cat.innerHTML = sec.cats.map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join(''); L.cat.value = d.cat;
+  $('#lAuthorRow').classList.toggle('hidden', !sec.author);
+  $('#lDescRow').classList.toggle('hidden', !sec.desc);
+  $('#lDoneRow').classList.toggle('hidden', !sec.tick || !x);
+  $('#lDoneLbl').textContent = sec.doneLabel || 'Done';
+  $('#leDelete').classList.toggle('hidden', !x);
+  $('#leKind').textContent = (x ? 'Edit ' : 'New ') + sec.noun;
+  $('#listEd').classList.add('open');
+  if(!x && !isMobile()) setTimeout(() => L.title.focus(), 30);
+}
+function closeListItem(){ $('#listEd').classList.remove('open'); LE = null; }
+function saveListItem(){
+  if(!LE) return;
+  const d = LE.d, t = L.title.value.trim();
+  if(!t){ toast('Please add a title'); return; }
+  if(LE.isNew || L.cat.value !== d.cat) d.order = nextOrder(d.section, L.cat.value);
+  const done = LE.sec.tick ? L.done.checked : false;
+  if(done && !d.done) d.doneAt = Date.now(); else if(!done) d.doneAt = null;
+  Object.assign(d, {title: t, cat: L.cat.value, author: LE.sec.author ? L.author.value.trim() : (d.author || ''), desc: LE.sec.desc ? L.desc.value : (d.desc || ''), done});
+  LI.put(d); closeListItem(); render();
+}
+function deleteListEd(){
+  if(!LE) return;
+  if(LE.isNew){ closeListItem(); return; }
+  const id = LE.d.id; closeListItem(); deleteListItem(id);
+}
+L.title.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); saveListItem(); } });
+L.author.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing){ e.preventDefault(); saveListItem(); } });
+$('#leSave').onclick = saveListItem; $('#leDelete').onclick = deleteListEd; $('#leClose').onclick = closeListItem;
+$('#btnNewList').onclick = () => openListItem(null);
+
 /* ---------- small dialogs ---------- */
 let chooserClose = null;
 function choose(title, msg, opts){
@@ -1547,7 +1780,7 @@ function importText(name, text){
   let n = 0, note = '';
   if(/\.json$/i.test(name) || text.trim().startsWith('{')){
     const data = JSON.parse(text);
-    [[DB, data.events], [PJ, data.projects], [CD, data.cards]].forEach(([st, arr]) => (arr || []).forEach(e => {
+    [[DB, data.events], [PJ, data.projects], [CD, data.cards], [LI, data.lists]].forEach(([st, arr]) => (arr || []).forEach(e => {
       if(!e || !e.id) return;
       const ex = st.mem.get(e.id);
       if(!ex || (e.updatedAt || 0) >= (ex.updatedAt || 0)){ e._lt = Date.now(); st.write(e); if(st === DB) n++; }
@@ -1558,7 +1791,7 @@ function importText(name, text){
     if(r.simplified) note = ` (${r.simplified} repeat rule${r.simplified > 1 ? 's' : ''} simplified)`;
   }
   try{ Sync.schedule(); }catch(e){}
-  render(); toast(`Imported ${n} event${n === 1 ? '' : 's'}${note}` + (/\.json$/i.test(name) || text.trim().startsWith('{') ? ' plus planner data' : ''));
+  render(); toast(`Imported ${n} event${n === 1 ? '' : 's'}${note}` + (/\.json$/i.test(name) || text.trim().startsWith('{') ? ' plus planner and list data' : ''));
 }
 $('#file').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = '';
@@ -1568,7 +1801,7 @@ $('#file').addEventListener('change', async e => {
 
 /* ---------- chrome: buttons, menu, keyboard, swipe ---------- */
 $('#btnNew').onclick = () => openEditor(null);
-$('#fab').onclick = () => S.mode === 'planner' ? (curProject() ? openCard(null) : newProject()) : openEditor(null);
+$('#fab').onclick = () => S.mode === 'planner' ? (curProject() ? openCard(null) : newProject()) : isListMode(S.mode) ? openListItem(null) : openEditor(null);
 $('#btnNewItem').onclick = () => openCard(null);
 $('#btnAddCol').onclick = () => { const p = curProject(); if(p) addColumn(p); };
 document.querySelectorAll('.apptab').forEach(b => b.onclick = () => setMode(b.dataset.mode));
@@ -1595,19 +1828,20 @@ menu.addEventListener('click', e => {
   const a = b.dataset.act, stamp = dkey(new Date());
   if(a === 'import') $('#file').click();
   if(a === 'ics') saveFile('alcal-' + stamp + '.ics', toICS(), 'text/calendar');
-  if(a === 'backup') saveFile('alcal-backup-' + stamp + '.json', JSON.stringify({app:'personal-calendar', version:1, exported:new Date().toISOString(), events:[...DB.mem.values()], projects:[...PJ.mem.values()], cards:[...CD.mem.values()]}, null, 1), 'application/json');
+  if(a === 'backup') saveFile('alcal-backup-' + stamp + '.json', JSON.stringify({app:'personal-calendar', version:1, exported:new Date().toISOString(), events:[...DB.mem.values()], projects:[...PJ.mem.values()], cards:[...CD.mem.values()], lists:[...LI.mem.values()]}, null, 1), 'application/json');
   if(a === 'renameProject') renameProject();
   if(a === 'deleteProject') deleteProject();
   if(a === 'sync') openSync();
   if(a === 'weekstart'){ S.weekStart = S.weekStart === 1 ? 0 : 1; LS.set('weekStart', S.weekStart); render(); }
 });
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ if(chooserClose) chooserClose(null); else if($('#syncDlg').classList.contains('open')) closeSync(); else if(CE) closeCard(); else if(ED) closeEditor(); menu.classList.remove('open'); $('#pop').classList.remove('open'); document.body.classList.remove('side-open'); return; }
-  if(ED || CE || chooserClose || $('#syncDlg').classList.contains('open') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+  if(e.key === 'Escape'){ if(chooserClose) chooserClose(null); else if($('#syncDlg').classList.contains('open')) closeSync(); else if(LE) closeListItem(); else if(CE) closeCard(); else if(ED) closeEditor(); menu.classList.remove('open'); $('#pop').classList.remove('open'); document.body.classList.remove('side-open'); return; }
+  if(ED || CE || LE || chooserClose || $('#syncDlg').classList.contains('open') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.toLowerCase();
   if(k === 'c' && S.mode !== 'calendar'){ setMode('calendar'); return; }
   if(k === 'p' && S.mode !== 'planner'){ setMode('planner'); return; }
   if(S.mode === 'planner'){ if(k === 'n') curProject() ? openCard(null) : newProject(); return; }
+  if(isListMode(S.mode)){ if(k === 'n') openListItem(null); return; }
   if(k === 't') nav(0); else if(k === 'n') openEditor(null);
   else if(e.key === 'ArrowLeft') nav(-1); else if(e.key === 'ArrowRight') nav(1);
   else if(k === 'd') setView('day'); else if(k === 'w') setView('week'); else if(k === 'm') setView('month');
@@ -1616,7 +1850,7 @@ document.addEventListener('keydown', e => {
   const c = $('#content'); let sx = 0, sy = 0, st = 0;
   c.addEventListener('touchstart', e => { if(e.touches.length !== 1) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); }, {passive:true});
   c.addEventListener('touchend', e => {
-    if(Drag.on || !st || S.mode === 'planner') return;
+    if(Drag.on || !st || S.mode !== 'calendar') return;
     const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
     if(Date.now() - st < 600 && Math.abs(dx) > 70 && Math.abs(dx) > 2*Math.abs(dy)){ suppressUntil = Date.now() + 400; nav(dx < 0 ? 1 : -1); }
     st = 0;
@@ -1632,7 +1866,7 @@ setInterval(() => {
 }, 60000);
 
 /* ---------- sync & reminders ---------- */
-const STORES = {events: DB, projects: PJ, cards: CD, settings: ST};
+const STORES = {events: DB, projects: PJ, cards: CD, settings: ST, lists: LI};
 const REM_OPTS = [[null, 'No reminder'], [0, 'At start time'], [5, '5 minutes before'], [10, '10 minutes before'], [15, '15 minutes before'],
   [30, '30 minutes before'], [60, '1 hour before'], [120, '2 hours before'], [1440, '1 day before'], [2880, '2 days before'], [10080, '1 week before']];
 function remOptionsHTML(allDay){
