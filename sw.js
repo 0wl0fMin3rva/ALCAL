@@ -1,5 +1,5 @@
 // AlCal service worker: offline cache, plus push notifications for reminders.
-const CACHE = 'alcal-v6';
+const CACHE = 'alcal-v7';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './seal.png'];
 
 self.addEventListener('install', e => {

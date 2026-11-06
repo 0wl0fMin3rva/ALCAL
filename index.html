@@ -64,7 +64,8 @@ textarea{resize:vertical}
 select:focus,input:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:-1px}
 
 /* Layout */
-.main{flex:1;display:flex;min-height:0;position:relative}
+.main{flex:1;display:flex;min-height:0;position:relative;border-right:1px solid color-mix(in srgb,var(--text2) 45%,transparent)}
+.mrow > :last-child{border-right:0}
 .sidebar{width:248px;flex:none;background:var(--surface);border-right:1px solid var(--line);padding:12px 14px;overflow:auto;display:flex;flex-direction:column;gap:18px}
 body.noside .sidebar{display:none}
 .scrim{display:none}
@@ -119,9 +120,9 @@ body.noside .sidebar{display:none}
   background-size:100% var(--hour),100% calc(var(--hour) / 2)}
 .col.today{background-color:color-mix(in srgb,var(--brand) 4%,transparent)}
 .ev{position:absolute;border-radius:4px;padding:2px 6px;font-size:12px;overflow:hidden;cursor:pointer;
-  border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 20%,var(--surface));color:var(--text);line-height:1.3;
+  border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 42%,var(--surface));color:var(--text);line-height:1.3;
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;box-shadow:0 0 0 1px var(--surface)}
-.ev:hover{background:color-mix(in srgb,var(--c) 30%,var(--surface))}
+.ev:hover{background:color-mix(in srgb,var(--c) 55%,var(--surface))}
 .ev .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev .m{color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev .rec{position:absolute;right:3px;top:3px;opacity:.7}
@@ -135,8 +136,8 @@ body.noside .sidebar{display:none}
 /* Chips (all-day row and month) */
 .chip{font-size:12px;line-height:18px;height:20px;padding:1px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;flex:none;
   user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.chip.fill{background:color-mix(in srgb,var(--c) 20%,var(--surface));border-left:3px solid var(--c)}
-.chip:hover{background:color-mix(in srgb,var(--c) 28%,var(--surface))}
+.chip.fill{background:color-mix(in srgb,var(--c) 42%,var(--surface));border-left:4px solid var(--c)}
+.chip:hover{background:color-mix(in srgb,var(--c) 55%,var(--surface))}
 .chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px}
 .chip .tm{color:var(--text2);margin-right:4px}
 
@@ -213,7 +214,8 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
 .board{flex:1;display:flex;gap:12px;padding:12px;overflow-x:auto;overflow-y:hidden;min-height:0;background:var(--surface);padding-bottom:calc(12px + env(safe-area-inset-bottom))}
 .column{flex:none;width:300px;background:var(--bg);border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;min-height:0;max-height:100%}
 .colhead{display:flex;align-items:center;gap:8px;padding:10px 6px 8px 12px;font-size:15px}
-.cdot{width:12px;height:12px;border-radius:50%;border:2px solid var(--c);flex:none}
+.cdot{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 6px color-mix(in srgb,var(--c) 60%,transparent);flex:none}
+.column{border-top:3px solid var(--c)}
 .cname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:none;border-radius:3px}
 .count{font-weight:500;letter-spacing:0;font-size:12px;color:var(--text2);background:var(--line);border-radius:10px;padding:0 7px;line-height:18px;flex:none}
 .colhead .iconbtn{margin-left:auto;width:28px;height:28px}
@@ -223,7 +225,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
 .card.dragging{box-shadow:0 10px 24px rgba(0,0,0,.22);transform:rotate(1.5deg);position:relative;z-index:5}
 .ctitle{font-size:14px;line-height:1.35;word-break:break-word}
 .cmeta{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--text2)}
-.prio{font-family:var(--ui);font-stretch:90%;font-weight:800;letter-spacing:-.02em;font-size:11.5px;border:1px solid var(--c);color:var(--c);border-radius:10px;padding:0 7px;line-height:17px}
+.prio{font-family:var(--ui);font-stretch:90%;font-weight:800;letter-spacing:-.02em;font-size:11.5px;border:1px solid var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent);border-radius:10px;padding:0 7px;line-height:17px}
 .due,.hasnotes{display:inline-flex;align-items:center;gap:3px}
 .due svg,.hasnotes svg{width:13px;height:13px}
 .due.late{color:var(--now)}
@@ -474,12 +476,12 @@ const ICON_REC = '<svg viewBox="0 0 24 24"><path d="M17 3l3 3-3 3M4 11V9a3 3 0 0
 const ICON_CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>';
 
 const CATS = [
-  {id:'blue',   name:'Calendar',  c:'#0f6cbd'},
-  {id:'orange', name:'Work',      c:'#da3b01'},
-  {id:'green',  name:'Personal',  c:'#107c10'},
-  {id:'purple', name:'Travel',    c:'#8764b8'},
-  {id:'red',    name:'Important', c:'#c50f1f'},
-  {id:'teal',   name:'Other',     c:'#038387'}
+  {id:'blue',   name:'Calendar',  c:'#2f80ff'},
+  {id:'orange', name:'Work',      c:'#ff6a00'},
+  {id:'green',  name:'Personal',  c:'#1fc94f'},
+  {id:'purple', name:'Travel',    c:'#a25bff'},
+  {id:'red',    name:'Important', c:'#ff2d55'},
+  {id:'teal',   name:'Other',     c:'#00c2c7'}
 ];
 function catOf(id){ return CATS.find(c => c.id === id) || CATS[0]; }
 const ICON_PEN = '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>';
@@ -743,7 +745,7 @@ function evBlock(g, ds, tg, days){
       : `<div class="t">${title} <span style="font-weight:400;opacity:.75">${esc(fmtTime(o.s))}</span></div>`)
     + (o.rec ? `<span class="rec">${ICON_REC}</span>` : '') + '<div class="rz"></div>';
   b.title = (o.ev.title || '(No title)') + '\n' + time + (o.ev.location ? '\n' + o.ev.location : '');
-  b.oncontextmenu = e => e.preventDefault();
+  b.oncontextmenu = e => evMenu(e, o);
   b.addEventListener('pointerdown', e => {
     if(e.button !== 0) return;
     e.stopPropagation();
@@ -862,7 +864,7 @@ function chip(o, inMonth){
   x.style.setProperty('--c', c.c);
   x.innerHTML = (inMonth && !o.allDay ? `<span class="dot"></span><span class="tm">${esc(fmtTime(o.s))}</span>` : '') + esc(o.ev.title || '(No title)');
   x.title = (o.ev.title || '(No title)') + (o.allDay ? '' : '\n' + fmtTime(o.s) + ' - ' + fmtTime(o.e));
-  x.oncontextmenu = e => e.preventDefault();
+  x.oncontextmenu = e => evMenu(e, o);
   return x;
 }
 function renderMonth(){
@@ -1055,6 +1057,27 @@ async function deleteEditor(){
   closeEditor(); DB.remove(d.id); render();
   toast('Event deleted', {label:'Undo', fn(){ const x = DB.mem.get(d.id); if(x){ x.deleted = false; DB.put(x); render(); } }});
 }
+/* right-click menus (mouse only; touch long-press stays a drag) */
+let lastPtr = 'mouse';
+document.addEventListener('pointerdown', e => { lastPtr = e.pointerType; }, true);
+function ctxOk(e){ e.preventDefault(); e.stopPropagation(); return lastPtr === 'mouse' && !Drag.on; }
+function evMenu(e, o){ if(ctxOk(e)) popAt(e.clientX, e.clientY, [['Edit', () => openOccurrence(o)], ['Delete', () => deleteOccurrence(o), 'danger']]); }
+function cardMenu(e, x){ if(ctxOk(e)) popAt(e.clientX, e.clientY, [['Edit', () => openCard(x)], ['Delete', () => deleteCardById(x.id), 'danger']]); }
+async function deleteOccurrence(o){
+  const ev = DB.mem.get(o.ev.id) || o.ev, name = esc(ev.title || '(No title)');
+  if(o.rec){
+    const c = await choose('Delete recurring event', name + ' · ' + esc(o.s.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'})),
+      [['one', 'Delete this occurrence'], ['all', 'Delete the series']]);
+    if(c === 'one'){
+      ev.exdates = [...(ev.exdates || []), o.key]; DB.put(ev); render();
+      toast('Occurrence deleted', {label:'Undo', fn(){ ev.exdates = ev.exdates.filter(k => k !== o.key); DB.put(ev); render(); }});
+      return;
+    }
+    if(c !== 'all') return;
+  }
+  DB.remove(ev.id); render();
+  toast('Event deleted', {label:'Undo', fn(){ const x = DB.mem.get(ev.id); if(x){ x.deleted = false; DB.put(x); render(); } }});
+}
 async function openOccurrence(o){
   if(!o.rec){ openEditor(o.ev); return; }
   const c = await choose('This is a recurring event', esc(o.ev.title || '(No title)') + ' · ' + esc(o.s.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric'})),
@@ -1064,8 +1087,8 @@ async function openOccurrence(o){
 $('#edSave').onclick = saveEditor; $('#edDelete').onclick = deleteEditor; $('#edClose').onclick = closeEditor;
 
 /* ---------- planner (kanban) ---------- */
-const COLCOLORS = ['#8a8886', '#107c10', '#c19c00', '#0f6cbd', '#8764b8', '#da3b01', '#038387'];
-const PRI = {low:{label:'Low', c:'#038387'}, medium:{label:'Medium', c:'#b38600'}, high:{label:'High', c:'#c50f1f'}};
+const COLCOLORS = ['#9aa0a6', '#2f80ff', '#ffb300', '#1fc94f', '#a25bff', '#ff6a00', '#00c2c7'];
+const PRI = {low:{label:'Low', c:'#00c2c7'}, medium:{label:'Medium', c:'#ffb300'}, high:{label:'High', c:'#ff2d55'}};
 const ICON_PLUS = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
 const ICON_MORE = '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>';
 const ICON_CAL = '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>';
@@ -1074,7 +1097,20 @@ function projects(){ return PJ.list().sort((a, b) => (a.createdAt || 0) - (b.cre
 function curProject(){
   let p = S.project && PJ.mem.get(S.project);
   if(!p || p.deleted){ p = projects()[0] || null; S.project = p && p.id; }
+  if(p) dropReady(p);
   return p;
+}
+// one-time removal of the old default "Ready" column; its items move to the column before it
+function dropReady(p){
+  if(p.noReady) return;
+  const i = p.columns.findIndex(c => c.name.trim().toLowerCase() === 'ready');
+  if(i >= 0 && p.columns.length > 1){
+    const col = p.columns[i], to = p.columns[i > 0 ? i - 1 : 1];
+    let o = (colCards(p.id, to.id).pop() || {order:0}).order;
+    colCards(p.id, col.id).forEach(x => { x.col = to.id; x.order = ++o; CD.put(x); });
+    p.columns.splice(i, 1);
+  }
+  p.noReady = true; PJ.put(p);
 }
 function isDone(p, c){ const last = p.columns[p.columns.length - 1]; return !!last && c.col === last.id; }
 function colCards(pid, cid){ return CD.list().filter(c => c.projectId === pid && c.col === cid).sort((a, b) => a.order - b.order); }
@@ -1087,10 +1123,11 @@ function taskChip(x){
   const t = el('div', 'chip task', '<span class="tbox"></span>' + esc(x.title || '(No title)'));
   t.title = (p ? p.name + ': ' : '') + (x.title || '');
   t.onclick = e => { e.stopPropagation(); openCard(x); };
+  t.oncontextmenu = e => cardMenu(e, x);
   return t;
 }
 function newProject(){
-  const p = {id: uid(), name: 'New project', columns: ['Backlog', 'Ready', 'In progress', 'In review', 'Done'].map(n => ({id: uid(), name: n})), createdAt: Date.now()};
+  const p = {id: uid(), name: 'New project', columns: ['Backlog', 'In progress', 'In review', 'Done'].map(n => ({id: uid(), name: n})), createdAt: Date.now()};
   PJ.put(p); S.project = p.id; LS.set('project', p.id); S.mode = 'planner'; LS.set('mode', 'planner');
   document.body.classList.remove('side-open'); render();
   setTimeout(renameProject, 30);
@@ -1112,12 +1149,12 @@ function renderPlanner(){
   $('#ptitle').textContent = p ? p.name : 'Planner';
   $('#btnNewItem').classList.toggle('hidden', !p); $('#btnAddCol').classList.toggle('hidden', !p);
   if(!p){
-    const e = el('div', 'empty', '<div class="empty-title">Plan your projects</div><p>Each project gets a board with Backlog, Ready, In progress, In review and Done. Drag items between columns as work moves along.</p>');
+    const e = el('div', 'empty', '<div class="empty-title">Plan your projects</div><p>Each project gets a board with Backlog, In progress, In review and Done. Drag items between columns as work moves along.</p>');
     const b = el('button', 'btn primary', ICON_PLUS + 'New project'); b.onclick = newProject; e.append(b); c.append(e); return;
   }
   const board = el('div', 'board');
   p.columns.forEach((col, i) => {
-    const colEl = el('div', 'column'); colEl.dataset.col = col.id;
+    const colEl = el('div', 'column'); colEl.dataset.col = col.id; colEl.style.setProperty('--c', COLCOLORS[i % COLCOLORS.length]);
     const list = colCards(p.id, col.id);
     const head = el('div', 'colhead', `<span class="cdot" style="--c:${COLCOLORS[i % COLCOLORS.length]}"></span><span class="cname">${esc(col.name)}</span><span class="count">${list.length}</span>`);
     const mb = el('button', 'iconbtn', ICON_MORE); mb.setAttribute('aria-label', 'Column options');
@@ -1139,7 +1176,7 @@ function cardEl(x, p){
   if(x.due){ const late = !isDone(p, x) && x.due < dkey(new Date()); meta += `<span class="due${late ? ' late' : ''}">${ICON_CAL}${esc(parseKey(x.due).toLocaleDateString([], {month:'short', day:'numeric'}))}</span>`; }
   if(x.notes && x.notes.trim()) meta += `<span class="hasnotes" title="Has a description">${ICON_NOTES}</span>`;
   d.innerHTML = `<div class="ctitle">${esc(x.title || '(No title)')}</div>` + (meta ? `<div class="cmeta">${meta}</div>` : '');
-  d.oncontextmenu = e => e.preventDefault();
+  d.oncontextmenu = e => cardMenu(e, x);
   d.addEventListener('pointerdown', e => { if(e.button === 0) cardDrag(e, d, x); });
   return d;
 }
@@ -1212,6 +1249,14 @@ function addColumn(p){
   const names = document.querySelectorAll('.cname'); const last = names[names.length - 1];
   renameColumn(p, p.columns[p.columns.length - 1], last);
 }
+function popAt(x, y, items){
+  const m = $('#pop'); m.innerHTML = '';
+  items.forEach(([label, fn, cls]) => { const b = el('button', cls || '', esc(label)); b.onclick = () => { m.classList.remove('open'); fn(); }; m.append(b); });
+  m.classList.add('open');
+  const w = m.offsetWidth, h = m.offsetHeight;
+  m.style.left = Math.max(8, Math.min(innerWidth - w - 8, x)) + 'px';
+  m.style.top = Math.max(8, Math.min(innerHeight - h - 8, y)) + 'px';
+}
 function popMenu(anchor, items){
   const m = $('#pop'); m.innerHTML = '';
   items.forEach(([label, fn, cls]) => { const b = el('button', cls || '', esc(label)); b.onclick = () => { m.classList.remove('open'); fn(); }; m.append(b); });
@@ -1279,6 +1324,10 @@ function saveCard(){
   }
   Object.assign(d, {title: t, projectId: newProj, col: newCol, due: C.due.value || null, priority: C.pri.value, notes: C.notes.value, remind: C.rem.value === '' ? null : +C.rem.value});
   CD.put(d); closeCard(); render();
+}
+function deleteCardById(id){
+  CD.remove(id); render();
+  toast('Item deleted', {label:'Undo', fn(){ const x = CD.mem.get(id); if(x){ x.deleted = false; CD.put(x); render(); } }});
 }
 function deleteCard(){
   if(!CE) return;
