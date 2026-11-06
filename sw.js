@@ -1,6 +1,6 @@
 // AlCal service worker: offline cache, plus push notifications for reminders.
-const CACHE = 'alcal-v8';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './seal.png'];
+const CACHE = 'alcal-v9';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './seal.png', './quotes.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

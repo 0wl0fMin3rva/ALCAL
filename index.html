@@ -91,6 +91,11 @@ body.noside .sidebar{display:none}
 .cat .box{width:16px;height:16px;border-radius:3px;border:2px solid var(--c);display:flex;align-items:center;justify-content:center;color:#fff}
 .cat .box.on{background:var(--c)}
 .cat .box svg{width:12px;height:12px;stroke-width:2.6}
+.daily{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;padding:4px 2px;color:color-mix(in srgb,var(--text2) 70%,transparent);font-style:italic;font-size:12px;line-height:1.5;user-select:text;-webkit-user-select:text}
+.daily blockquote{margin:0 0 8px;hyphens:auto;-webkit-hyphens:auto}
+.daily .by,.daily .src{font-size:10.5px;line-height:1.4}
+.daily .src{opacity:.8}
+.daily:empty{display:none}
 .side-foot{margin-top:auto;display:flex;justify-content:flex-start}
 .side-foot .seal{width:42px;height:auto;display:block;opacity:.92;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .cat .catname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:none;border-radius:3px}
@@ -338,6 +343,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
     <div id="mini" class="cal-only"></div>
     <div class="cats cal-only" id="cats"></div>
     <div class="plist plan-only" id="projects"></div>
+    <div class="daily" id="daily" aria-label="Line of the day"></div>
     <div class="side-foot"><img class="seal" src="seal.png" alt=""></div>
   </aside>
   <div class="scrim" id="scrim"></div>
@@ -1861,5 +1867,6 @@ $('#pushTest').onclick = async () => {
   Sync.start();
 })();
 </script>
+<script src="quotes.js"></script>
 </body>
 </html>
