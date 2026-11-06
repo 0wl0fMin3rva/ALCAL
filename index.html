@@ -89,7 +89,15 @@ body.noside .sidebar{display:none}
 .cat .box{width:16px;height:16px;border-radius:3px;border:2px solid var(--c);display:flex;align-items:center;justify-content:center;color:#fff}
 .cat .box.on{background:var(--c)}
 .cat .box svg{width:12px;height:12px;stroke-width:2.6}
-.side-foot{margin-top:auto;font-size:12px;color:var(--text2);line-height:1.5}
+.side-foot{margin-top:auto;display:flex;justify-content:flex-start}
+.side-foot .seal{width:42px;height:auto;display:block;opacity:.92;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.cat .catname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;outline:none;border-radius:3px}
+.cat .catname[contenteditable=true]{outline:2px solid var(--brand);padding:0 4px;background:var(--surface);text-overflow:clip;cursor:text;user-select:text;-webkit-user-select:text}
+.cat .catedit{flex:none;width:22px;height:22px;border:0;background:none;color:var(--text2);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;padding:0}
+.cat:hover .catedit,.cat .catedit:focus-visible{opacity:1}
+.cat .catedit:hover{background:var(--line);color:var(--text)}
+.cat .catedit svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media (hover:none){.cat .catedit{opacity:.55}}
 
 /* Time grid */
 .grid-head,.allday{display:flex;flex:none;padding-right:var(--sbw);border-bottom:1px solid var(--line)}
@@ -304,7 +312,7 @@ body[data-mode=planner] .cal-only,body[data-mode=calendar] .plan-only{display:no
     <div id="mini" class="cal-only"></div>
     <div class="cats cal-only" id="cats"></div>
     <div class="plist plan-only" id="projects"></div>
-    <div class="side-foot">Everything is stored on this device and works without a connection.</div>
+    <div class="side-foot"><img class="seal" src="seal.png" alt=""></div>
   </aside>
   <div class="scrim" id="scrim"></div>
   <section class="content" id="content"></section>
@@ -426,6 +434,13 @@ const CATS = [
   {id:'teal',   name:'Other',     c:'#038387'}
 ];
 function catOf(id){ return CATS.find(c => c.id === id) || CATS[0]; }
+const ICON_PEN = '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg>';
+function applyCatNames(){ const n = LS.get('catNames', {}) || {}; CATS.forEach(c => { if(typeof n[c.id] === 'string' && n[c.id].trim()) c.name = n[c.id]; }); }
+function fillCatSelect(){ const s = document.getElementById('fCat'); if(!s) return; const v = s.value; s.innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(''); if(v) s.value = v; }
+function renameCat(c, span){
+  inlineEdit(span, v => { v = v.slice(0, 40); c.name = v; const n = LS.get('catNames', {}) || {}; n[c.id] = v; LS.set('catNames', n); fillCatSelect(); render(); });
+}
+applyCatNames();
 
 /* ---------- storage (IndexedDB, falls back to memory) ---------- */
 class Store {
@@ -592,8 +607,11 @@ function renderCats(){
   const box = $('#cats'); box.innerHTML = '<h3>Calendars</h3>';
   CATS.forEach(c => {
     const on = !S.hidden.has(c.id);
-    const l = el('div', 'cat', `<span class="box${on?' on':''}" style="--c:${c.c}">${on?ICON_CHECK:''}</span>${esc(c.name)}`);
-    l.onclick = () => { on ? S.hidden.add(c.id) : S.hidden.delete(c.id); LS.set('hidden', [...S.hidden]); render(); };
+    const l = el('div', 'cat', `<span class="box${on?' on':''}" style="--c:${c.c}">${on?ICON_CHECK:''}</span><span class="catname">${esc(c.name)}</span><button class="catedit" aria-label="Rename ${esc(c.name)}" title="Rename">${ICON_PEN}</button>`);
+    const nm = l.querySelector('.catname');
+    l.onclick = () => { if(nm.isContentEditable) return; on ? S.hidden.add(c.id) : S.hidden.delete(c.id); LS.set('hidden', [...S.hidden]); render(); };
+    nm.ondblclick = e => { e.stopPropagation(); renameCat(c, nm); };
+    l.querySelector('.catedit').onclick = e => { e.stopPropagation(); renameCat(c, nm); };
     box.append(l);
   });
   const on = !S.hidden.has('tasks');
@@ -871,7 +889,7 @@ function bindMonthChip(x, o){
 
 /* ---------- editor ---------- */
 const F = {title:$('#fTitle'), sd:$('#fSd'), st:$('#fSt'), ed:$('#fEd'), et:$('#fEt'), all:$('#fAll'), rep:$('#fRep'), until:$('#fUntil'), cat:$('#fCat'), loc:$('#fLoc'), notes:$('#fNotes')};
-F.cat.innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+fillCatSelect();
 let ED = null, prevStart = null;
 function defaultStart(day){
   const d = sod(day || S.date), now = new Date();

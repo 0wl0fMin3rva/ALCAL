@@ -1,6 +1,6 @@
 // Offline support: serve the app from the cache, refresh it in the background when online.
-const CACHE = 'alcal-v4';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
+const CACHE = 'alcal-v5';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png', './seal.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
