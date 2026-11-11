@@ -568,7 +568,7 @@ body:not([data-mode=calendar]) .cal-only,body:not([data-mode=planner]) .plan-onl
         <h3 class="sh">Sync between devices</h3>
         <p class="hint">Enter your AlCal server address and sync key. Use the same two on every device.</p>
         <label class="fl">Server address<input id="syUrl" placeholder="https://alcal-sync.yourname.workers.dev" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="url"></label>
-        <label class="fl">Sync key<input id="syKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <label class="fl">Sync key<span style="display:flex;gap:6px"><input id="syKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:0"><button type="button" class="btn" id="syShow">Show</button></span></label>
         <div class="frow"><button class="btn primary" id="syConnect">Connect</button><button class="btn" id="syNow">Sync now</button><span class="spacer"></span><button class="btn danger" id="syOff">Disconnect</button></div>
         <div class="status" id="syStatus"></div>
       </section>
@@ -2590,6 +2590,7 @@ async function restoreBackup(id, when){
     st.textContent = n ? `Restored ${n} record${n === 1 ? '' : 's'}.` : 'Nothing to restore: your data already matches this backup.';
   }catch(e){ st.textContent = 'Could not restore: ' + e.message; st.classList.add('bad'); }
 }
+$('#syShow').onclick = e => { e.preventDefault(); const k = $('#syKey'), show = k.type === 'password'; k.type = show ? 'text' : 'password'; e.target.textContent = show ? 'Hide' : 'Show'; };
 $('#backupNow').onclick = async () => {
   const st = $('#backupStatus'); st.classList.remove('bad'); st.textContent = 'Saving...';
   try{ await Sync.run(); await api('/api/backups/now', {}); await loadBackups(); $('#backupStatus').textContent = 'Backup saved on the server.'; }
@@ -2682,7 +2683,7 @@ function renderSyncStatus(){
 }
 function openSync(){
   const c = Sync.cfg || {};
-  $('#syUrl').value = c.url || ''; $('#syKey').value = c.key || '';
+  $('#syUrl').value = c.url || ''; $('#syKey').value = c.key || ''; $('#syKey').type = 'password'; $('#syShow').textContent = 'Show';
   const dr = $('#defRem'); dr.innerHTML = remOptionsHTML(false);
   const v = LS.get('defaultReminder', 15); dr.value = v == null ? '' : String(v);
   $('#pushStatus').textContent = '';
